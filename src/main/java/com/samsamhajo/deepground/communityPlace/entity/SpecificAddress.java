@@ -42,9 +42,6 @@ public class SpecificAddress extends BaseEntity {
     @JdbcTypeCode(SqlTypes.GEOMETRY)
     private Point locationPoint;
 
-    @Column(name = "specific_address_name")
-    private String name;
-
     @Column(name = "phone")
     private String phone;
 
@@ -87,6 +84,18 @@ public class SpecificAddress extends BaseEntity {
                 placeUrl,
                 locationPoint.getY(), // 위도 = Y
                 locationPoint.getX()  // 경도 = X
+        );
+    }
+
+    public static SpecificAddress of(String location, Point locationPoint) {
+        return new SpecificAddress(
+                location,
+                locationPoint,
+                null,  // name
+                null,  // phone
+                null,  // placeUrl
+                locationPoint.getY(),
+                locationPoint.getX()
         );
     }
 }
