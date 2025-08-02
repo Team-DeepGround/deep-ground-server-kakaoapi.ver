@@ -16,7 +16,7 @@ public class CommunityPlaceReview extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "communtiy_place_reviews_id")
+    @Column(name = "community_place_reviews_id")
     private Long id;
 
     @Column(name = "community_place_scope")
