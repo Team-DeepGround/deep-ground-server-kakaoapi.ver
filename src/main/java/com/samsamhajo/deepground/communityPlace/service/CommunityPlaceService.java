@@ -144,6 +144,7 @@ public class CommunityPlaceService {
         return specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
     }
 
+    //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
     public ReviewDetailDto SearchReviewDetail(Long placeId, Long reviewId) {
         CommunityPlaceReview communityPlaceReview = communityPlaceRepository.findById(reviewId).orElseThrow(
                 () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
