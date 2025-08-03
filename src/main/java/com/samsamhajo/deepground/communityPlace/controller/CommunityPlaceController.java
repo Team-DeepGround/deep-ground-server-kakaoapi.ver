@@ -4,6 +4,7 @@ package com.samsamhajo.deepground.communityPlace.controller;
 import com.samsamhajo.deepground.auth.security.CustomUserDetails;
 import com.samsamhajo.deepground.communityPlace.dto.CommunityPlaceReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceSuccessCode;
@@ -82,6 +83,18 @@ public class CommunityPlaceController {
 
         return ResponseEntity
                 .ok(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITYPLACE_SUCCESS_SELECT_BY_REVIEW_SCOPE,communityPlaceReview));
+    }
+
+    @GetMapping("/communityPlaceReviewId")
+    public ResponseEntity<SuccessResponse> getReviewDetail(
+            @PathVariable Long communityPlaceReviewId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        ReviewDetailDto reviewDetailDto = communityPlaceService.SearchReviewDetail(communityPlaceReviewId, customUserDetails.getMember().getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITY_PLACE_SUCCESS_REVIEW_DETAIL, reviewDetailDto));
     }
 }
 
