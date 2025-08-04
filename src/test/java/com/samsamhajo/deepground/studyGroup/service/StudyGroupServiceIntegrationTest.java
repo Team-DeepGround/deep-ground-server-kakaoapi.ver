@@ -1,6 +1,8 @@
 package com.samsamhajo.deepground.studyGroup.service;
 
 import com.samsamhajo.deepground.IntegrationTestSupport;
+import com.samsamhajo.deepground.address.entity.Address;
+import com.samsamhajo.deepground.address.repository.AddressRepository;
 import com.samsamhajo.deepground.chat.entity.ChatRoomType;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.entity.Provider;
@@ -11,18 +13,27 @@ import com.samsamhajo.deepground.studyGroup.entity.StudyGroup;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroupMember;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupMemberRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
+import com.samsamhajo.deepground.techStack.entity.TechStack;
+import com.samsamhajo.deepground.techStack.repository.TechStackRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
 @Transactional
 class StudyGroupServiceIntegrationTest extends IntegrationTestSupport {
+
+  @MockBean
+  private StringRedisTemplate stringRedisTemplate;
+
 
   @Autowired
   private StudyGroupService studyGroupService;
@@ -36,6 +47,12 @@ class StudyGroupServiceIntegrationTest extends IntegrationTestSupport {
   @Autowired
   private MemberRepository memberRepository;
 
+  @Autowired
+  private AddressRepository addressRepository;
+
+  @Autowired
+  private TechStackRepository techStackRepository;
+
   private Member creator;
 
   @BeforeEach
@@ -47,6 +64,9 @@ class StudyGroupServiceIntegrationTest extends IntegrationTestSupport {
   @Test
   void createStudyGroup_successfully() {
     // given
+    Address address = Address.of("서울시", "마포구", "신촌동");
+    addressRepository.save(address);
+
     StudyGroupCreateRequest request = StudyGroupCreateRequest.builder()
         .title("모각코 스터디")
         .explanation("매일 오전 9시 모여서 코딩하는 스터디입니다.")
@@ -56,7 +76,7 @@ class StudyGroupServiceIntegrationTest extends IntegrationTestSupport {
         .recruitEndDate(LocalDate.now().plusDays(5))
         .groupMemberCount(5)
         .isOffline(true)
-        .studyLocation("신촌")
+            .addressIds(List.of(address.getId()))
         .build();
 
     // when

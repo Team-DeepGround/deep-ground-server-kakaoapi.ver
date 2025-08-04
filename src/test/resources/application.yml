@@ -54,9 +54,8 @@ spring:
     show-sql: false
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+      host: localhost
+      port: 63790
     mongodb:
       host: ${MONGO_HOST}
       port: ${MONGO_PORT}
@@ -152,3 +151,8 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+
+kakao-api:
+  rest-client: ${NEXT_PUBLIC_KAKAO_REST_API_KEY}
+  host: ${KAKAO_REST_API_HOST}

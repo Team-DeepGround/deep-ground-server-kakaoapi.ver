@@ -51,7 +51,7 @@ class StudyGroupInviteServiceTest extends IntegrationTestSupport {
     StudyGroupAddress groupAddress = StudyGroupAddress.of(null, address);
 
     group = StudyGroup.of(
-        ChatRoom.of(ChatRoomType.STUDY_GROUP), "스터디", "소개",
+        null, "스터디", "소개",
         LocalDate.now(), LocalDate.now().plusDays(10),
         LocalDate.now(), LocalDate.now().plusDays(3),
         5, owner, true, List.of(groupAddress)
