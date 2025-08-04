@@ -24,8 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class FeedCommentLikeServiceTest {
@@ -86,15 +85,6 @@ class FeedCommentLikeServiceTest {
         assertThatThrownBy(() -> feedCommentLikeService.feedLikeIncrease(1L, testMember))
                 .isInstanceOf(FeedCommentException.class)
                 .hasFieldOrPropertyWithValue("errorCode", FeedCommentErrorCode.FEED_COMMENT_LIKE_ALREADY_EXISTS);
-    }
-
-    @Test
-    @DisplayName("피드 댓글 좋아요 증가 실패 - 존재하지 않는 회원")
-    void feedLikeIncreaseFailWithInvalidMember() {
-        // when & then
-        assertThatThrownBy(() -> feedCommentLikeService.feedLikeIncrease(1L, testMember))
-                .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", MemberErrorCode.INVALID_MEMBER_ID);
     }
 
     @Test

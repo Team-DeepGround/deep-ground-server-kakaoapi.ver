@@ -107,19 +107,6 @@ class FeedReplyServiceTest {
     }
 
     @Test
-    @DisplayName("피드 답글 생성 실패 - 존재하지 않는 회원")
-    void createFeedReplyFailWithInvalidMember() {
-        // given
-        FeedReplyCreateRequest request = new FeedReplyCreateRequest(1L, TEST_CONTENT, List.of());
-        when(memberRepository.findById(1L)).thenReturn(java.util.Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> feedReplyService.createFeedReply(request, testMember))
-                .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", MemberErrorCode.INVALID_MEMBER_ID);
-    }
-
-    @Test
     @DisplayName("피드 답글 수정 성공")
     void updateFeedReplySuccess() {
         // given

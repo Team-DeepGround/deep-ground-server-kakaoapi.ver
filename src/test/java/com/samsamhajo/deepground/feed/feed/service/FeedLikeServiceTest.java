@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,9 +69,9 @@ class FeedLikeServiceTest {
 
     @Test
     @DisplayName("피드 좋아요 증가 실패 - 이미 좋아요를 누른 경우")
-    void feedLikeIncreaseFailWithAlreadyLiked() {
+    void feedLikeIncreaseFailWithAlreadyLiked() throws NoSuchFieldException, IllegalAccessException {
         // given
-        Member testMember = Member.createLocalMember(TEST_EMAIL, TEST_PASSWORD, TEST_NICKNAME);
+        Member testMember = mock(Member.class);
 
         // given
         when(feedLikeRepository.existsByFeedIdAndMemberId(1L, 1L)).thenReturn(true);

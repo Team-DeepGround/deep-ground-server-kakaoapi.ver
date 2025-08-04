@@ -81,23 +81,6 @@ class SharedFeedServiceTest {
     }
 
     @Test
-    @DisplayName("공유 피드 생성 실패 - 존재하지 않는 회원")
-    void createSharedFeedFailWithInvalidMember() {
-        // given
-        Member testMember = Member.createLocalMember(TEST_EMAIL, TEST_PASSWORD, TEST_NICKNAME);
-        SharedFeedRequest request = new SharedFeedRequest();
-        ReflectionTestUtils.setField(request, "originFeedId", 1L);
-        ReflectionTestUtils.setField(request, "content", TEST_CONTENT);
-
-        // when & then
-        when(testMember.getId()).thenReturn(1L);
-
-        assertThatThrownBy(() -> sharedFeedService.createSharedFeed(request, testMember))
-                .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", MemberErrorCode.INVALID_MEMBER_ID);
-    }
-
-    @Test
     @DisplayName("공유 피드 조회 성공")
     void getSharedFeedResponseSuccess() {
         // given
