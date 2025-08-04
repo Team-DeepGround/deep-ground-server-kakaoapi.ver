@@ -124,6 +124,21 @@ public class StudyGroupService {
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
     group.update(request, techStacks);
 
+    if (request.getIsOffline() && request.getAddressIds() != null) {
+      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
+
+      if (addresses.size() != request.getAddressIds().size()) {
+        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
+      }
+
+      group.getStudyGroupAddresses().clear();
+
+      for (Address address : addresses) {
+        StudyGroupAddress sga = StudyGroupAddress.of(null, address);
+        sga.assignStudyGroup(group);
+      }
+    }
+
     List<Long> commentIds = group.getComments().stream().map(c -> c.getId()).toList();
     List<StudyGroupReply> replies = studyGroupRepository.findRepliesByCommentIds(commentIds);
     Map<Long, List<StudyGroupReply>> replyMap = replies.stream().collect(Collectors.groupingBy(r -> r.getComment().getId()));
@@ -137,17 +152,6 @@ public class StudyGroupService {
     validateRequest(request);
     ChatRoom chatRoom = chatRoomService.createStudyGroupChatRoom(creator);
 
-    List<StudyGroupAddress> studyGroupAddresses = new ArrayList<>();
-    if (request.getIsOffline() && request.getAddressIds() != null) {
-      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
-      if (addresses.size() != request.getAddressIds().size()) {
-        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
-      }
-      studyGroupAddresses = addresses.stream()
-              .map(address -> StudyGroupAddress.of(null, address))
-              .toList();
-    }
-
     StudyGroup studyGroup = StudyGroup.of(
             chatRoom,
             request.getTitle(),
@@ -159,17 +163,31 @@ public class StudyGroupService {
             request.getGroupMemberCount(),
             creator,
             request.getIsOffline(),
-            studyGroupAddresses
+            new ArrayList<>()
     );
-    StudyGroup savedGroup = studyGroupRepository.save(studyGroup);
+    studyGroupRepository.save(studyGroup);
+
+    if (request.getIsOffline() && request.getAddressIds() != null) {
+      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
+
+      if (addresses.size() != request.getAddressIds().size()) {
+        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
+      }
+
+      for (Address address : addresses) {
+        StudyGroupAddress sga = StudyGroupAddress.of(null, address);
+        sga.assignStudyGroup(studyGroup);
+      }
+    }
+
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
     for (TechStack techStack : techStacks) {
-      StudyGroupTechTag link = StudyGroupTechTag.of(savedGroup, techStack);
+      StudyGroupTechTag link = StudyGroupTechTag.of(studyGroup, techStack);
       studyGroupTechTagRepository.save(link);
     }
-    StudyGroupMember groupMember = StudyGroupMember.of(creator, savedGroup, true);
+    StudyGroupMember groupMember = StudyGroupMember.of(creator, studyGroup, true);
     studyGroupMemberRepository.save(groupMember);
-    return StudyGroupCreateResponse.from(savedGroup);
+    return StudyGroupCreateResponse.from(studyGroup);
   }
 
   public List<StudyGroupParticipationResponse> getStudyGroupsByMember(Long memberId) {

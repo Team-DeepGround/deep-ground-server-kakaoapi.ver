@@ -64,7 +64,7 @@ public class StudyGroup extends BaseEntity {
     private Member creator;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id", nullable = false)
+    @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
     @OneToMany(mappedBy = "studyGroup", fetch = FetchType.EAGER)
