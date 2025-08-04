@@ -44,7 +44,7 @@ class StudyGroupInviteServiceTest extends IntegrationTestSupport {
         ChatRoom.of(ChatRoomType.STUDY_GROUP), "스터디", "소개",
         LocalDate.now(), LocalDate.now().plusDays(10),
         LocalDate.now(), LocalDate.now().plusDays(3),
-        5, owner, true, "강남"
+        5, owner, true
     );
     studyGroupRepository.save(group);
   }

@@ -56,7 +56,6 @@ class StudyGroupServiceIntegrationTest extends IntegrationTestSupport {
         .recruitEndDate(LocalDate.now().plusDays(5))
         .groupMemberCount(5)
         .isOffline(true)
-        .studyLocation("신촌")
         .build();
 
     // when

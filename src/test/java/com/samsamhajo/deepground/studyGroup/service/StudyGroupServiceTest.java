@@ -32,6 +32,10 @@ public class StudyGroupServiceTest {
     private TechStackRepository techStackRepository;
     private StudyGroupTechTagRepository studyGroupTechTagRepository;
 
+    private StudyGroupAddressRepository studyGroupAddressRepository;
+
+    private AddressRepository addressRepository;
+
     @BeforeEach
     void setUp() {
         studyGroupRepository = mock(StudyGroupRepository.class);
@@ -45,7 +49,9 @@ public class StudyGroupServiceTest {
                 studyGroupMemberRepository,
                 chatRoomService,
                 techStackRepository,
-                studyGroupTechTagRepository
+                studyGroupTechTagRepository,
+                addressRepository,
+                studyGroupAddressRepository
         );
     }
 
