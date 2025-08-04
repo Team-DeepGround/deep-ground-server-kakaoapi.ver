@@ -3,22 +3,18 @@ package com.samsamhajo.deepground.studyGroup.dto;
 import com.samsamhajo.deepground.address.dto.AddressDto;
 import lombok.Getter;
 
-import java.util.List;
-
 
 @Getter
 public class CalculatedStudyGroupInLocalResponse {
-    List<Long> studyGroupIds;
     Long count;
     AddressDto address;
 
-    private CalculatedStudyGroupInLocalResponse(List<Long> studyGroupIds, Long count, AddressDto address) {
-        this.studyGroupIds = studyGroupIds;
+    private CalculatedStudyGroupInLocalResponse(Long count, AddressDto address) {
         this.count = count;
         this.address = address;
     }
 
-    public static CalculatedStudyGroupInLocalResponse of(List<Long> studyGroupIds, Long count, AddressDto address) {
-        return new CalculatedStudyGroupInLocalResponse(studyGroupIds, count, address);
+    public static CalculatedStudyGroupInLocalResponse of(Long count, AddressDto address) {
+        return new CalculatedStudyGroupInLocalResponse(count, address);
     }
 }
