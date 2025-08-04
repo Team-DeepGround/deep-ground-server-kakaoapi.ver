@@ -14,6 +14,7 @@ public class CommunityPlaceMedia extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_media_id")
     private Long id;
 
     @Column(name = "review_media_url", nullable = false)

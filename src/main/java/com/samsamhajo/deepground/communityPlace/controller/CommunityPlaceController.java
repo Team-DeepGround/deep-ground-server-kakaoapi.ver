@@ -55,7 +55,7 @@ public class CommunityPlaceController {
 
     }
 
-    @GetMapping("/{placeId}")
+    @GetMapping("/reviews/{placeId}")
     public ResponseEntity<SuccessResponse> getCommunityPlaceReviews(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @PathVariable Long placeId) {
