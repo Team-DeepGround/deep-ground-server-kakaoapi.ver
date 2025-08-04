@@ -20,10 +20,13 @@ public interface StudyGroupAddressRepository extends JpaRepository<StudyGroupAdd
     List<Long> findStudyGroupIdByAddress(String city, String gu, String dong);
 
     @Query(value = """
-        SELECT COUNT(studyGroupAddress.id), studyGroupAddress.studyGroup.id
-        FROM StudyGroupAddress studyGroupAddress
-        WHERE studyGroupAddress.address.id IN :addressIds
-        GROUP BY studyGroupAddress.address.id
+        SELECT new com.samsamhajo.deepground.studyGroup.dto.CalculatedStudyGroupsInLocalResultDto(
+            COUNT(sga.address.id),
+            sga.address.id
+        )
+        FROM StudyGroupAddress sga
+        WHERE sga.address.id IN :addressIds
+        GROUP BY sga.address.id
     """)
     List<CalculatedStudyGroupsInLocalResultDto> countStudyGroupByAddressIdsGroupByAddressId(@Param("addressIds") List<Long> addressIds);
 }
