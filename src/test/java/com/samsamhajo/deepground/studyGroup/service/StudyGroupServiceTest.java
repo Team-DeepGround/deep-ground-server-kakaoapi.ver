@@ -29,8 +29,8 @@ public class StudyGroupServiceTest {
     private ChatRoomService chatRoomService;
     private TechStackRepository techStackRepository;
     private StudyGroupTechTagRepository studyGroupTechTagRepository;
-    private StudyGroupAddressRepository studyGroupAddressRepository;
     private AddressRepository addressRepository;
+    private StudyGroupAddressRepository studyGroupAddressRepository;
     private StudyGroupService studyGroupService;
 
     @BeforeEach
@@ -38,7 +38,7 @@ public class StudyGroupServiceTest {
         studyGroupRepository = mock(StudyGroupRepository.class);
         studyGroupMemberRepository = mock(StudyGroupMemberRepository.class);
         chatRoomService = mock(ChatRoomService.class);
-        techStackRepository = mock(TechStackRepository.class); // ✅ 추가
+        techStackRepository = mock(TechStackRepository.class);
         studyGroupTechTagRepository = mock(StudyGroupTechTagRepository.class);
         addressRepository = mock(AddressRepository.class);
 
@@ -46,9 +46,10 @@ public class StudyGroupServiceTest {
                 studyGroupRepository,
                 studyGroupMemberRepository,
                 chatRoomService,
-                techStackRepository, // ✅ 추가
+                techStackRepository,
                 studyGroupTechTagRepository,
-                addressRepository
+                addressRepository,
+                studyGroupAddressRepository
         );
     }
 

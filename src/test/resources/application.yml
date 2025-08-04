@@ -54,8 +54,9 @@ spring:
     show-sql: false
   data:
     redis:
-      host: localhost
-      port: 63790
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
     mongodb:
       host: ${MONGO_HOST}
       port: ${MONGO_PORT}
