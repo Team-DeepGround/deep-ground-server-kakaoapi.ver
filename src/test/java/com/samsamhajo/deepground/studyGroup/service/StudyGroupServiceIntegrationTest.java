@@ -31,10 +31,6 @@ import static org.assertj.core.api.Assertions.*;
 @Transactional
 class StudyGroupServiceIntegrationTest extends IntegrationTestSupport {
 
-  @MockBean
-  private StringRedisTemplate stringRedisTemplate;
-
-
   @Autowired
   private StudyGroupService studyGroupService;
 

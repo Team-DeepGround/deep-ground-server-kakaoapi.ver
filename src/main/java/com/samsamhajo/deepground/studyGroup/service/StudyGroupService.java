@@ -9,6 +9,7 @@ import com.samsamhajo.deepground.member.entity.MemberProfile;
 import com.samsamhajo.deepground.studyGroup.dto.*;
 import com.samsamhajo.deepground.studyGroup.entity.*;
 import com.samsamhajo.deepground.studyGroup.exception.StudyGroupNotFoundException;
+import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupTechTagRepository;
 import com.samsamhajo.deepground.techStack.entity.TechStack;
 import com.samsamhajo.deepground.techStack.repository.TechStackRepository;
@@ -36,6 +37,7 @@ public class StudyGroupService {
   private final TechStackRepository techStackRepository;
   private final StudyGroupTechTagRepository studyGroupTechTagRepository;
   private final AddressRepository addressRepository;
+  private final StudyGroupAddressRepository studyGroupAddressRepository;
 
 
   @Transactional
@@ -44,8 +46,6 @@ public class StudyGroupService {
             .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
 
     List<StudyGroupComment> comments = studyGroupRepository.findCommentsWithMembersByStudyGroupId(studyGroupId);
-    group.getComments().clear();
-    group.getComments().addAll(comments);
 
     List<Long> commentIds = comments.stream().map(StudyGroupComment::getId).toList();
     List<StudyGroupReply> replies = studyGroupRepository.findRepliesByCommentIds(commentIds);
@@ -125,19 +125,8 @@ public class StudyGroupService {
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
     group.update(request, techStacks);
 
-    if (request.getIsOffline() && request.getAddressIds() != null) {
-      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
-
-      if (addresses.size() != request.getAddressIds().size()) {
-        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
-      }
-
-      group.getStudyGroupAddresses().clear();
-
-      for (Address address : addresses) {
-        StudyGroupAddress sga = StudyGroupAddress.of(null, address);
-        sga.assignStudyGroup(group);
-      }
+    if (request.getIsOffline()) {
+      assignAddressesToStudyGroup(group, request.getAddressIds());
     }
 
     List<StudyGroupComment> comments = studyGroupRepository.findCommentsWithMembersByStudyGroupId(studyGroupId);
@@ -173,17 +162,8 @@ public class StudyGroupService {
     );
     studyGroupRepository.save(studyGroup);
 
-    if (request.getIsOffline() && request.getAddressIds() != null) {
-      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
-
-      if (addresses.size() != request.getAddressIds().size()) {
-        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
-      }
-
-      for (Address address : addresses) {
-        StudyGroupAddress sga = StudyGroupAddress.of(null, address);
-        sga.assignStudyGroup(studyGroup);
-      }
+    if (request.getIsOffline()) {
+      assignAddressesToStudyGroup(studyGroup, request.getAddressIds());
     }
 
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
@@ -229,6 +209,24 @@ public class StudyGroupService {
     chatRoomService.deleteChatRoom(studyGroup.getChatRoom().getId());
 
     studyGroup.softDelete();
+  }
+
+  private void assignAddressesToStudyGroup(StudyGroup studyGroup, List<Long> addressIds) {
+    if (addressIds == null || addressIds.isEmpty()) {
+      return;
+    }
+
+    List<Address> addresses = addressRepository.findAllById(addressIds);
+    if (addresses.size() != addressIds.size()) {
+      throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
+    }
+
+    studyGroup.getStudyGroupAddresses().clear();
+    for (Address address : addresses) {
+      StudyGroupAddress sga = StudyGroupAddress.of(null, address);
+      sga.assignStudyGroup(studyGroup);
+      studyGroupAddressRepository.save(sga);
+    }
   }
 
 
