@@ -15,9 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,18 +42,12 @@ class CalculatedStudyGroupInLocalServiceTest {
             AddressDto address1 = AddressDto.builder().id(1L).city(city).gu(gu).dong("역삼동").build();
             AddressDto address2 = AddressDto.builder().id(2L).city(city).gu(gu).dong("삼성동").build();
             List<AddressDto> addressDtoList = List.of(address1, address2);
-            given(addressService.getDongsByCityAndGu(city, gu)).willReturn(addressDtoList);
+            given(addressService.getDongsByCityAndGuUsingLike(city, gu)).willReturn(addressDtoList);
 
-            CalculatedStudyGroupsInLocalResultDto result1 = new CalculatedStudyGroupsInLocalResultDto();
-            setField(result1, "studyGroupIds", List.of(100L, 101L));
-            setField(result1, "count", 2L);
-            setField(result1, "addressId", 1L);
-            CalculatedStudyGroupsInLocalResultDto result2 = new CalculatedStudyGroupsInLocalResultDto();
-            setField(result2, "studyGroupIds", List.of(200L));
-            setField(result2, "count", 1L);
-            setField(result2, "addressId", 2L);
+            CalculatedStudyGroupsInLocalResultDto result1 = new CalculatedStudyGroupsInLocalResultDto(2L, 1L);
+            CalculatedStudyGroupsInLocalResultDto result2 = new CalculatedStudyGroupsInLocalResultDto(1L, 2L);
             List<CalculatedStudyGroupsInLocalResultDto> resultList = List.of(result1, result2);
-            given(studyGroupAddressRepository.countStudyGroupByAddressIdsGroupByAddressId(List.of(1L, 2L))).willReturn(resultList);
+            given(studyGroupAddressRepository.countStudyGroupByAddressIdsGroupByAddressId(anyList())).willReturn(resultList);
 
             // when
             CalculatedStudyGroupsInLocalResponse response = calculatedStudyGroupInLocalService.getStudyGroupsInLocal(city, gu);
@@ -61,9 +55,10 @@ class CalculatedStudyGroupInLocalServiceTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.getCalculatedStudyGroups()).hasSize(2);
-            assertThat(response.getCalculatedStudyGroups().get(0).getStudyGroupIds()).containsExactly(100L, 101L);
             assertThat(response.getCalculatedStudyGroups().get(0).getCount()).isEqualTo(2L);
             assertThat(response.getCalculatedStudyGroups().get(0).getAddress().getDong()).isEqualTo("역삼동");
+            assertThat(response.getCalculatedStudyGroups().get(1).getCount()).isEqualTo(1L);
+            assertThat(response.getCalculatedStudyGroups().get(1).getAddress().getDong()).isEqualTo("삼성동");
         }
     }
 
@@ -76,7 +71,8 @@ class CalculatedStudyGroupInLocalServiceTest {
             // given
             String city = "서울";
             String gu = "강남구";
-            given(addressService.getDongsByCityAndGu(city, gu)).willReturn(List.of());
+            given(addressService.getDongsByCityAndGuUsingLike(city, gu)).willReturn(List.of());
+            given(studyGroupAddressRepository.countStudyGroupByAddressIdsGroupByAddressId(anyList())).willReturn(List.of());
 
             // when
             CalculatedStudyGroupsInLocalResponse response = calculatedStudyGroupInLocalService.getStudyGroupsInLocal(city, gu);
@@ -84,18 +80,6 @@ class CalculatedStudyGroupInLocalServiceTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.getCalculatedStudyGroups()).isEmpty();
-            verify(studyGroupAddressRepository, never()).countStudyGroupByAddressIdsGroupByAddressId(anyList());
-        }
-    }
-
-    // 리플렉션을 이용해 private 필드 세팅
-    private static void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 } 
