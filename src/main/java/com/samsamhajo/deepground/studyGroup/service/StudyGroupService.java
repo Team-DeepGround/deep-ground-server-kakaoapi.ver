@@ -40,17 +40,18 @@ public class StudyGroupService {
 
   @Transactional
   public StudyGroupDetailResponse getStudyGroupDetail(Long studyGroupId, Long memberId) {
-    StudyGroup group = studyGroupRepository.findWithCreatorAndCommentsById(studyGroupId)
-        .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
+    StudyGroup group = studyGroupRepository.findWithAllButCommentsById(studyGroupId)
+            .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
 
-    List<Long> commentIds = group.getComments().stream()
-        .map(StudyGroupComment::getId)
-        .toList();
+    List<StudyGroupComment> comments = studyGroupRepository.findCommentsWithMembersByStudyGroupId(studyGroupId);
+    group.getComments().clear();
+    group.getComments().addAll(comments);
 
+    List<Long> commentIds = comments.stream().map(StudyGroupComment::getId).toList();
     List<StudyGroupReply> replies = studyGroupRepository.findRepliesByCommentIds(commentIds);
 
     Map<Long, List<StudyGroupReply>> replyMap = replies.stream()
-        .collect(Collectors.groupingBy(r -> r.getComment().getId()));
+            .collect(Collectors.groupingBy(r -> r.getComment().getId()));
     StudyGroupMemberStatus memberStatus = getMemberStatus(studyGroupId, memberId);
 
     return StudyGroupDetailResponse.from(group, replyMap, memberStatus);
@@ -107,7 +108,7 @@ public class StudyGroupService {
 
   @Transactional
   public StudyGroupDetailResponse updateStudyGroup(Long studyGroupId, StudyGroupUpdateRequest request, Member updater) {
-    StudyGroup group = studyGroupRepository.findWithCreatorAndCommentsById(studyGroupId)
+    StudyGroup group = studyGroupRepository.findWithAllButCommentsById(studyGroupId)
         .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
 
     if (!group.getCreator().getId().equals(updater.getId())) {
@@ -139,9 +140,14 @@ public class StudyGroupService {
       }
     }
 
-    List<Long> commentIds = group.getComments().stream().map(c -> c.getId()).toList();
+    List<StudyGroupComment> comments = studyGroupRepository.findCommentsWithMembersByStudyGroupId(studyGroupId);
+    group.getComments().clear();
+    group.getComments().addAll(comments);
+
+    List<Long> commentIds = comments.stream().map(StudyGroupComment::getId).toList();
     List<StudyGroupReply> replies = studyGroupRepository.findRepliesByCommentIds(commentIds);
     Map<Long, List<StudyGroupReply>> replyMap = replies.stream().collect(Collectors.groupingBy(r -> r.getComment().getId()));
+
     StudyGroupMemberStatus memberStatus = getMemberStatus(group.getId(), updater.getId());
 
     return StudyGroupDetailResponse.from(group, replyMap, memberStatus);

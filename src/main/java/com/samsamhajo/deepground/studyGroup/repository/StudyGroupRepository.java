@@ -2,10 +2,12 @@ package com.samsamhajo.deepground.studyGroup.repository;
 
 import com.samsamhajo.deepground.studyGroup.entity.GroupStatus;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroup;
+import com.samsamhajo.deepground.studyGroup.entity.StudyGroupComment;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroupReply;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
@@ -15,6 +17,13 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long> {
 
+
+  @EntityGraph(attributePaths = {
+          "creator",
+          "studyGroupTechTags.techStack",
+          "members",
+          "studyGroupAddresses.address"
+  })
   @Query("""
   SELECT DISTINCT sg FROM StudyGroup sg
   LEFT JOIN FETCH sg.creator
@@ -39,17 +48,22 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long> {
       Pageable pageable
   );
 
+  @EntityGraph(attributePaths = {
+          "creator",
+          "studyGroupTechTags.techStack",
+          "studyGroupAddresses.address",
+          "members"
+  })
+  @Query("SELECT sg FROM StudyGroup sg WHERE sg.id = :id")
+  Optional<StudyGroup> findWithAllButCommentsById(@Param("id") Long id);
+
   @Query("""
-  SELECT DISTINCT sg FROM StudyGroup sg
-  LEFT JOIN FETCH sg.creator
-  LEFT JOIN FETCH sg.members
-  LEFT JOIN FETCH sg.comments c
+  SELECT c FROM StudyGroupComment c
   LEFT JOIN FETCH c.member
-  LEFT JOIN FETCH sg.studyGroupTechTags sgt
-  LEFT JOIN FETCH sgt.techStack ts
-  WHERE sg.id = :id
-""")
-  Optional<StudyGroup> findWithCreatorAndCommentsById(@Param("id") Long id);
+  WHERE c.studyGroup.id = :id
+  """)
+  List<StudyGroupComment> findCommentsWithMembersByStudyGroupId(@Param("id") Long id);
+
 
   @Query("""
   SELECT r FROM StudyGroupReply r
@@ -60,5 +74,5 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long> {
 
   List<StudyGroup> findAllByCreator_IdOrderByCreatedAtDesc(Long memberId);
 
-    List<StudyGroup> findByIdIn(List<Long> studyGroupIds);
+  List<StudyGroup> findByIdIn(List<Long> studyGroupIds);
 }
