@@ -6,6 +6,9 @@ import com.samsamhajo.deepground.email.dto.EmailVerifyRequest;
 import com.samsamhajo.deepground.email.exception.EmailErrorCode;
 import com.samsamhajo.deepground.email.exception.EmailException;
 import com.samsamhajo.deepground.email.repository.EmailVerificationRepository;
+import com.samsamhajo.deepground.member.entity.Member;
+import com.samsamhajo.deepground.member.entity.Role;
+import com.samsamhajo.deepground.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +30,20 @@ public class EmailServiceTest {
     @Autowired
     private EmailVerificationRepository emailVerificationRepository;
 
+    @Autowired
+    private MemberRepository memberRepository;
+
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_CODE = "123456";
 
     @BeforeEach
     void setup() {
         emailVerificationRepository.delete(TEST_EMAIL);
+
+        Member member = Member.createLocalMember(TEST_EMAIL, "test-password", "tester");
+        memberRepository.save(member);
+
+        memberRepository.save(member);
     }
 
     @Test
@@ -55,9 +66,13 @@ public class EmailServiceTest {
         emailVerificationRepository.save(TEST_EMAIL, TEST_CODE, 300L);
         EmailVerifyRequest request = new EmailVerifyRequest(TEST_EMAIL, TEST_CODE);
 
-        // when & then
+        // when
         assertDoesNotThrow(() -> emailService.verifyEmail(request));
-        assertThat(emailVerificationRepository.exists(TEST_EMAIL)).isFalse();
+
+        // then
+        Member verifiedMember = memberRepository.findByEmail(TEST_EMAIL).orElseThrow();
+        assertThat(verifiedMember.isVerified()).isTrue();
+        assertThat(verifiedMember.getRole()).isEqualTo(Role.ROLE_USER);
     }
 
     @Test
@@ -91,16 +106,19 @@ public class EmailServiceTest {
     @Test
     void 이메일_인증상태_확인() {
         // given
-        emailVerificationRepository.save(TEST_EMAIL, TEST_CODE, 300L);
+        String email = "unique-email@example.com";
+        String code = "654321";
+        Member member = Member.createLocalMember(email, "secure-password", "uniqueTester");
+        memberRepository.save(member);
+        emailVerificationRepository.save(email, code, 300L);
 
         // when & then
-        assertThat(emailService.isVerified(TEST_EMAIL)).isFalse();
-
-        // 인증 완료 후
-        EmailVerifyRequest request = new EmailVerifyRequest(TEST_EMAIL, TEST_CODE);
+        assertThat(emailService.isVerified(email)).isFalse();
+        EmailVerifyRequest request = new EmailVerifyRequest(email, code);
         emailService.verifyEmail(request);
 
-        assertThat(emailService.isVerified(TEST_EMAIL)).isTrue();
+
+        assertThat(emailService.isVerified(email)).isTrue();
     }
 
     @Test

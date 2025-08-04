@@ -41,6 +41,7 @@ public class StudyGroupServiceTest {
         techStackRepository = mock(TechStackRepository.class);
         studyGroupTechTagRepository = mock(StudyGroupTechTagRepository.class);
         addressRepository = mock(AddressRepository.class);
+        studyGroupAddressRepository = mock(StudyGroupAddressRepository.class);
 
         studyGroupService = new StudyGroupService(
                 studyGroupRepository,
