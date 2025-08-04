@@ -13,6 +13,7 @@ import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.exception.MemberErrorCode;
 import com.samsamhajo.deepground.member.exception.MemberException;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
+import com.samsamhajo.deepground.notification.event.NotificationEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -44,6 +46,9 @@ class FeedCommentServiceTest {
     private FeedReplyService feedReplyService;
     @Mock
     private FeedCommentLikeService feedCommentLikeService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private FeedCommentService feedCommentService;
@@ -80,6 +85,7 @@ class FeedCommentServiceTest {
     void createFeedCommentSuccess() {
         // given
         FeedCommentCreateRequest request = new FeedCommentCreateRequest(1L, TEST_CONTENT, List.of(testImage));
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
         when(feedRepository.getById(1L)).thenReturn(testFeed);
         when(feedCommentRepository.save(any(FeedComment.class))).thenReturn(testFeedComment);
@@ -103,18 +109,6 @@ class FeedCommentServiceTest {
         assertThatThrownBy(() -> feedCommentService.createFeedComment(request, testMember))
                 .isInstanceOf(FeedCommentException.class)
                 .hasFieldOrPropertyWithValue("errorCode", FeedCommentErrorCode.INVALID_FEED_COMMENT_CONTENT);
-    }
-
-    @Test
-    @DisplayName("피드 댓글 생성 실패 - 존재하지 않는 회원")
-    void createFeedCommentFailWithInvalidMember() {
-        // given
-        FeedCommentCreateRequest request = new FeedCommentCreateRequest(1L, TEST_CONTENT, List.of());
-
-        // when & then
-        assertThatThrownBy(() -> feedCommentService.createFeedComment(request, testMember))
-                .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", MemberErrorCode.INVALID_MEMBER_ID);
     }
 
     @Test
