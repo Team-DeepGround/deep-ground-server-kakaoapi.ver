@@ -1,10 +1,8 @@
 package com.samsamhajo.deepground.studyGroup.service;
 
-import com.samsamhajo.deepground.address.entity.Address;
 import com.samsamhajo.deepground.address.repository.AddressRepository;
 import com.samsamhajo.deepground.chat.entity.ChatRoom;
 import com.samsamhajo.deepground.chat.entity.ChatRoomType;
-import com.samsamhajo.deepground.chat.repository.ChatRoomRepository;
 import com.samsamhajo.deepground.chat.service.ChatRoomService;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.studyGroup.dto.StudyGroupCreateRequest;
@@ -13,7 +11,6 @@ import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressReposito
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupMemberRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupTechTagRepository;
-import com.samsamhajo.deepground.techStack.repository.TechStackRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +26,9 @@ public class StudyGroupServiceTest {
     private StudyGroupMemberRepository studyGroupMemberRepository;
     private ChatRoomService chatRoomService;
     private StudyGroupService studyGroupService;
-    private TechStackRepository techStackRepository;
     private StudyGroupTechTagRepository studyGroupTechTagRepository;
+    private StudyGroupAddressRepository studyGroupAddressRepository;
+    private AddressRepository addressRepository;
 
     @BeforeEach
     void setUp() {
@@ -44,8 +42,11 @@ public class StudyGroupServiceTest {
                 studyGroupRepository,
                 studyGroupMemberRepository,
                 chatRoomService,
-                techStackRepository,
-                studyGroupTechTagRepository
+                studyGroupTechTagRepository,
+                studyGroupAddressRepository,
+                addressRepository
+
+
         );
     }
 

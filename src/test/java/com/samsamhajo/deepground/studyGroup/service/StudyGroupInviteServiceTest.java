@@ -2,10 +2,13 @@ package com.samsamhajo.deepground.studyGroup.service;
 
 
 import com.samsamhajo.deepground.IntegrationTestSupport;
+import com.samsamhajo.deepground.address.entity.Address;
+import com.samsamhajo.deepground.address.repository.AddressRepository;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
 import com.samsamhajo.deepground.studyGroup.dto.StudyGroupInviteRequest;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroup;
+import com.samsamhajo.deepground.studyGroup.entity.StudyGroupAddress;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupInviteTokenRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
 import com.samsamhajo.deepground.chat.entity.ChatRoom;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -28,6 +32,7 @@ class StudyGroupInviteServiceTest extends IntegrationTestSupport {
   @Autowired private MemberRepository memberRepository;
   @Autowired private StudyGroupRepository studyGroupRepository;
   @Autowired private StudyGroupInviteTokenRepository inviteTokenRepository;
+  @Autowired private AddressRepository addressRepository;
 
   private Member owner;
   private Member outsider;
@@ -40,11 +45,16 @@ class StudyGroupInviteServiceTest extends IntegrationTestSupport {
     memberRepository.save(owner);
     memberRepository.save(outsider);
 
+    Address address = Address.of("서울", "강남구", "강남역");  // 필요 시 생성자에 맞게 수정
+    addressRepository.save(address);
+
+    StudyGroupAddress groupAddress = StudyGroupAddress.of(null, address);
+
     group = StudyGroup.of(
         ChatRoom.of(ChatRoomType.STUDY_GROUP), "스터디", "소개",
         LocalDate.now(), LocalDate.now().plusDays(10),
         LocalDate.now(), LocalDate.now().plusDays(3),
-        5, owner, true, "강남"
+        5, owner, true, List.of(groupAddress)
     );
     studyGroupRepository.save(group);
   }

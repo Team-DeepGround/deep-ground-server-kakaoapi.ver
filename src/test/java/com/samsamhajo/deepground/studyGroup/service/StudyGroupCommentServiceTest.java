@@ -1,11 +1,14 @@
 package com.samsamhajo.deepground.studyGroup.service;
 
 import com.samsamhajo.deepground.IntegrationTestSupport;
+import com.samsamhajo.deepground.address.entity.Address;
+import com.samsamhajo.deepground.address.repository.AddressRepository;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
 import com.samsamhajo.deepground.studyGroup.dto.StudyGroupCommentRequest;
 import com.samsamhajo.deepground.studyGroup.dto.StudyGroupCommentResponse;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroup;
+import com.samsamhajo.deepground.studyGroup.entity.StudyGroupAddress;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupCommentRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
 import jakarta.persistence.EntityManager;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -36,18 +40,24 @@ class StudyGroupCommentServiceTest extends IntegrationTestSupport {
   @Autowired
   private StudyGroupCommentRepository commentRepository;
 
+  @Autowired
+  private AddressRepository addressRepository;
+
   @PersistenceContext
   private EntityManager em;
 
   private Long memberId;
   private Long studyGroupId;
 
+
   @BeforeEach
   void setUp() {
     Member member = Member.createLocalMember("user@test.com", "1234", "댓글작성자");
     memberRepository.save(member);
     this.memberId = member.getId();
-
+    Address address = Address.of("서울시", "서초구", "양재동"); // 생성자에 맞게 조정
+    addressRepository.save(address);
+    StudyGroupAddress groupAddress = StudyGroupAddress.of(null, address);
     StudyGroup group = StudyGroup.of(
         null, "댓글 테스트 스터디", "설명",
         LocalDate.now().plusDays(1),
@@ -57,7 +67,7 @@ class StudyGroupCommentServiceTest extends IntegrationTestSupport {
         10,
         member,
         true,
-        "신촌"
+            List.of(groupAddress)
     );
     studyGroupRepository.save(group);
     this.studyGroupId = group.getId();
