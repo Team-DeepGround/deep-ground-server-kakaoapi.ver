@@ -9,6 +9,7 @@ import com.samsamhajo.deepground.member.entity.MemberProfile;
 import com.samsamhajo.deepground.studyGroup.dto.*;
 import com.samsamhajo.deepground.studyGroup.entity.*;
 import com.samsamhajo.deepground.studyGroup.exception.StudyGroupNotFoundException;
+import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupTechTagRepository;
 import com.samsamhajo.deepground.techStack.entity.TechStack;
 import com.samsamhajo.deepground.techStack.repository.TechStackRepository;
@@ -36,21 +37,21 @@ public class StudyGroupService {
   private final TechStackRepository techStackRepository;
   private final StudyGroupTechTagRepository studyGroupTechTagRepository;
   private final AddressRepository addressRepository;
+  private final StudyGroupAddressRepository studyGroupAddressRepository;
 
 
   @Transactional
   public StudyGroupDetailResponse getStudyGroupDetail(Long studyGroupId, Long memberId) {
-    StudyGroup group = studyGroupRepository.findWithCreatorAndCommentsById(studyGroupId)
-        .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
+    StudyGroup group = studyGroupRepository.findWithAllButCommentsById(studyGroupId)
+            .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
 
-    List<Long> commentIds = group.getComments().stream()
-        .map(StudyGroupComment::getId)
-        .toList();
+    List<StudyGroupComment> comments = studyGroupRepository.findCommentsWithMembersByStudyGroupId(studyGroupId);
 
+    List<Long> commentIds = comments.stream().map(StudyGroupComment::getId).toList();
     List<StudyGroupReply> replies = studyGroupRepository.findRepliesByCommentIds(commentIds);
 
     Map<Long, List<StudyGroupReply>> replyMap = replies.stream()
-        .collect(Collectors.groupingBy(r -> r.getComment().getId()));
+            .collect(Collectors.groupingBy(r -> r.getComment().getId()));
     StudyGroupMemberStatus memberStatus = getMemberStatus(studyGroupId, memberId);
 
     return StudyGroupDetailResponse.from(group, replyMap, memberStatus);
@@ -107,7 +108,7 @@ public class StudyGroupService {
 
   @Transactional
   public StudyGroupDetailResponse updateStudyGroup(Long studyGroupId, StudyGroupUpdateRequest request, Member updater) {
-    StudyGroup group = studyGroupRepository.findWithCreatorAndCommentsById(studyGroupId)
+    StudyGroup group = studyGroupRepository.findWithAllButCommentsById(studyGroupId)
         .orElseThrow(() -> new StudyGroupNotFoundException(studyGroupId));
 
     if (!group.getCreator().getId().equals(updater.getId())) {
@@ -124,9 +125,18 @@ public class StudyGroupService {
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
     group.update(request, techStacks);
 
-    List<Long> commentIds = group.getComments().stream().map(c -> c.getId()).toList();
+    if (request.getIsOffline()) {
+      assignAddressesToStudyGroup(group, request.getAddressIds());
+    }
+
+    List<StudyGroupComment> comments = studyGroupRepository.findCommentsWithMembersByStudyGroupId(studyGroupId);
+    group.getComments().clear();
+    group.getComments().addAll(comments);
+
+    List<Long> commentIds = comments.stream().map(StudyGroupComment::getId).toList();
     List<StudyGroupReply> replies = studyGroupRepository.findRepliesByCommentIds(commentIds);
     Map<Long, List<StudyGroupReply>> replyMap = replies.stream().collect(Collectors.groupingBy(r -> r.getComment().getId()));
+
     StudyGroupMemberStatus memberStatus = getMemberStatus(group.getId(), updater.getId());
 
     return StudyGroupDetailResponse.from(group, replyMap, memberStatus);
@@ -136,17 +146,6 @@ public class StudyGroupService {
   public StudyGroupCreateResponse createStudyGroup(StudyGroupCreateRequest request, Member creator) {
     validateRequest(request);
     ChatRoom chatRoom = chatRoomService.createStudyGroupChatRoom(creator);
-
-    List<StudyGroupAddress> studyGroupAddresses = new ArrayList<>();
-    if (request.getIsOffline() && request.getAddressIds() != null) {
-      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
-      if (addresses.size() != request.getAddressIds().size()) {
-        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
-      }
-      studyGroupAddresses = addresses.stream()
-              .map(address -> StudyGroupAddress.of(null, address))
-              .toList();
-    }
 
     StudyGroup studyGroup = StudyGroup.of(
             chatRoom,
@@ -159,17 +158,22 @@ public class StudyGroupService {
             request.getGroupMemberCount(),
             creator,
             request.getIsOffline(),
-            studyGroupAddresses
+            new ArrayList<>()
     );
-    StudyGroup savedGroup = studyGroupRepository.save(studyGroup);
+    studyGroupRepository.save(studyGroup);
+
+    if (request.getIsOffline()) {
+      assignAddressesToStudyGroup(studyGroup, request.getAddressIds());
+    }
+
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
     for (TechStack techStack : techStacks) {
-      StudyGroupTechTag link = StudyGroupTechTag.of(savedGroup, techStack);
+      StudyGroupTechTag link = StudyGroupTechTag.of(studyGroup, techStack);
       studyGroupTechTagRepository.save(link);
     }
-    StudyGroupMember groupMember = StudyGroupMember.of(creator, savedGroup, true);
+    StudyGroupMember groupMember = StudyGroupMember.of(creator, studyGroup, true);
     studyGroupMemberRepository.save(groupMember);
-    return StudyGroupCreateResponse.from(savedGroup);
+    return StudyGroupCreateResponse.from(studyGroup);
   }
 
   public List<StudyGroupParticipationResponse> getStudyGroupsByMember(Long memberId) {
@@ -205,6 +209,24 @@ public class StudyGroupService {
     chatRoomService.deleteChatRoom(studyGroup.getChatRoom().getId());
 
     studyGroup.softDelete();
+  }
+
+  private void assignAddressesToStudyGroup(StudyGroup studyGroup, List<Long> addressIds) {
+    if (addressIds == null || addressIds.isEmpty()) {
+      return;
+    }
+
+    List<Address> addresses = addressRepository.findAllById(addressIds);
+    if (addresses.size() != addressIds.size()) {
+      throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
+    }
+
+    studyGroup.getStudyGroupAddresses().clear();
+    for (Address address : addresses) {
+      StudyGroupAddress sga = StudyGroupAddress.of(null, address);
+      sga.assignStudyGroup(studyGroup);
+      studyGroupAddressRepository.save(sga);
+    }
   }
 
 

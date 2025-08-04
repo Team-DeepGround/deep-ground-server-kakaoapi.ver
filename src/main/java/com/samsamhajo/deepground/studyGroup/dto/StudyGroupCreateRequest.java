@@ -45,7 +45,6 @@ public class StudyGroupCreateRequest {
 
   private List<Long> addressIds;
 
-  @NotNull(message = "기술 스택은 필수입니다.")
   @Size(min = 1, message = "최소 1개 이상의 기술 스택을 선택해주세요.")
   private List<String> techStackNames;
 }

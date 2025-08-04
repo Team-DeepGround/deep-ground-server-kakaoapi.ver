@@ -1,5 +1,6 @@
 package com.samsamhajo.deepground.studyGroup.service;
 
+import com.samsamhajo.deepground.address.entity.Address;
 import com.samsamhajo.deepground.address.repository.AddressRepository;
 import com.samsamhajo.deepground.chat.entity.ChatRoom;
 import com.samsamhajo.deepground.chat.entity.ChatRoomType;
@@ -11,6 +12,7 @@ import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressReposito
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupMemberRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupTechTagRepository;
+import com.samsamhajo.deepground.techStack.repository.TechStackRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,28 +27,28 @@ public class StudyGroupServiceTest {
     private StudyGroupRepository studyGroupRepository;
     private StudyGroupMemberRepository studyGroupMemberRepository;
     private ChatRoomService chatRoomService;
-    private StudyGroupService studyGroupService;
+    private TechStackRepository techStackRepository;
     private StudyGroupTechTagRepository studyGroupTechTagRepository;
     private StudyGroupAddressRepository studyGroupAddressRepository;
     private AddressRepository addressRepository;
+    private StudyGroupService studyGroupService;
 
     @BeforeEach
     void setUp() {
         studyGroupRepository = mock(StudyGroupRepository.class);
         studyGroupMemberRepository = mock(StudyGroupMemberRepository.class);
-        studyGroupTechTagRepository = mock(StudyGroupTechTagRepository.class);
-        studyGroupAddressRepository = mock(StudyGroupAddressRepository.class);
-        addressRepository = mock(AddressRepository.class);
         chatRoomService = mock(ChatRoomService.class);
+        techStackRepository = mock(TechStackRepository.class); // ✅ 추가
+        studyGroupTechTagRepository = mock(StudyGroupTechTagRepository.class);
+        addressRepository = mock(AddressRepository.class);
+
         studyGroupService = new StudyGroupService(
                 studyGroupRepository,
                 studyGroupMemberRepository,
                 chatRoomService,
+                techStackRepository, // ✅ 추가
                 studyGroupTechTagRepository,
-                studyGroupAddressRepository,
                 addressRepository
-
-
         );
     }
 
@@ -62,6 +64,7 @@ public class StudyGroupServiceTest {
                 .groupMemberCount(5)
                 .isOffline(true)
                 .addressIds(List.of(1L, 2L))
+                .techStackNames(List.of("Java")) // 필수 필드
                 .build();
     }
 
@@ -72,18 +75,23 @@ public class StudyGroupServiceTest {
         StudyGroupCreateRequest request = validRequest();
         ChatRoom chatRoom = ChatRoom.of(ChatRoomType.STUDY_GROUP);
 
+        Address address1 = mock(Address.class);
+        Address address2 = mock(Address.class);
+
         when(chatRoomService.createStudyGroupChatRoom(any())).thenReturn(chatRoom);
         when(studyGroupRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(addressRepository.findAllById(request.getAddressIds()))
+                .thenReturn(List.of(address1, address2));
 
         // when
         StudyGroupCreateResponse response = studyGroupService.createStudyGroup(request, creator);
 
         // then
         assertThat(response.getTitle()).isEqualTo(request.getTitle());
-        assertThat(response.getIsOffline()).isEqualTo(true);
+        assertThat(response.getIsOffline()).isTrue();
 
         verify(chatRoomService).createStudyGroupChatRoom(any());
-        verify(studyGroupRepository).save(any());
+        verify(studyGroupRepository, atLeastOnce()).save(any());
         verify(studyGroupMemberRepository).save(any());
         verify(addressRepository).findAllById(request.getAddressIds());
         verify(studyGroupAddressRepository, atLeastOnce()).save(any());

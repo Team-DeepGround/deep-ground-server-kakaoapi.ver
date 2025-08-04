@@ -1,10 +1,9 @@
 package com.samsamhajo.deepground.studyGroup.dto;
 
+import com.samsamhajo.deepground.address.dto.AddressDto;
 import com.samsamhajo.deepground.member.entity.Member;
-import com.samsamhajo.deepground.studyGroup.entity.GroupStatus;
-import com.samsamhajo.deepground.studyGroup.entity.StudyGroup;
-import com.samsamhajo.deepground.studyGroup.entity.StudyGroupTechTag;
-import com.samsamhajo.deepground.studyGroup.entity.TechTag;
+import com.samsamhajo.deepground.studyGroup.entity.*;
+
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public class StudyGroupResponse {
   private Integer currentMembers;
   private OrganizerDto organizer;
   private Boolean isOnline;
-  private String location;
+  private Set<AddressDto> addresses;
 
   @Getter
   @Builder
@@ -42,28 +41,33 @@ public class StudyGroupResponse {
     Member creator = group.getCreator();
 
     Set<TechTagDto> techTags = group.getStudyGroupTechTags().stream()
-        .map(StudyGroupTechTag::getTechStack)
-        .map(techStack -> new TechTagDto(techStack.getId(), techStack.getName()))
-        .collect(Collectors.toSet());
+            .map(StudyGroupTechTag::getTechStack)
+            .map(techStack -> new TechTagDto(techStack.getId(), techStack.getName()))
+            .collect(Collectors.toSet());
+
+    Set<AddressDto> addresses = group.getStudyGroupAddresses().stream()
+            .map(StudyGroupAddress::getAddress)
+            .map(AddressDto::from)
+            .collect(Collectors.toSet());
 
     return StudyGroupResponse.builder()
-        .id(group.getId())
-        .title(group.getTitle())
-        .description(group.getExplanation())
-        .period(group.getStudyStartDate().format(formatter) + " ~ " + group.getStudyEndDate().format(formatter))
-        .recruitmentPeriod(group.getRecruitStartDate().format(formatter) + " ~ " + group.getRecruitEndDate().format(formatter))
-        .tags(techTags)
-        .maxMembers(group.getGroupMemberCount())
-        .currentMembers(group.getMembers().size())
-        .groupStatus(group.getGroupStatus())
-        .organizer(
-            OrganizerDto.builder()
-                .name(creator.getNickname())
-                .avatar("/placeholder.svg?height=40&width=40")
-                .build()
-        )
-        .isOnline(!group.getIsOffline())
-        .location(group.getStudyLocation())
-        .build();
+            .id(group.getId())
+            .title(group.getTitle())
+            .description(group.getExplanation())
+            .period(group.getStudyStartDate().format(formatter) + " ~ " + group.getStudyEndDate().format(formatter))
+            .recruitmentPeriod(group.getRecruitStartDate().format(formatter) + " ~ " + group.getRecruitEndDate().format(formatter))
+            .tags(techTags)
+            .maxMembers(group.getGroupMemberCount())
+            .currentMembers(group.getMembers().size())
+            .groupStatus(group.getGroupStatus())
+            .organizer(
+                    OrganizerDto.builder()
+                            .name(creator.getNickname())
+                            .avatar("/placeholder.svg?height=40&width=40")
+                            .build()
+            )
+            .isOnline(!group.getIsOffline())
+            .addresses(addresses)
+            .build();
   }
 }

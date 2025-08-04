@@ -1,6 +1,8 @@
 package com.samsamhajo.deepground.studyGroup.dto;
 
+import com.samsamhajo.deepground.address.dto.AddressDto;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroup;
+import com.samsamhajo.deepground.studyGroup.entity.StudyGroupAddress;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroupMemberStatus;
 import com.samsamhajo.deepground.studyGroup.entity.StudyGroupReply;
 import java.time.LocalDate;
@@ -21,7 +23,6 @@ public class StudyGroupDetailResponse {
   private String writer;
   private int memberCount;
   private int groupLimit;
-  private String location;
   private boolean isOffline;
   private LocalDate recruitStartDate;
   private LocalDate recruitEndDate;
@@ -32,39 +33,45 @@ public class StudyGroupDetailResponse {
   private List<CommentWithRepliesResponse> comments;
   private StudyGroupMemberStatus memberStatus;
   private Set<TechTagDto> techStacks;
+  private Set<AddressDto> addresses;
 
   public static StudyGroupDetailResponse from(StudyGroup group, Map<Long, List<StudyGroupReply>> replyMap, StudyGroupMemberStatus memberStatus) {
     return StudyGroupDetailResponse.builder()
-        .id(group.getId())
-        .title(group.getTitle())
-        .explanation(group.getExplanation())
-        .writer(group.getCreator().getNickname())
-        .memberCount(group.getMembers().size())
-        .groupLimit(group.getGroupMemberCount())
-        .location(group.getStudyLocation())
-        .isOffline(group.getIsOffline())
-        .recruitStartDate(group.getRecruitStartDate())
-        .recruitEndDate(group.getRecruitEndDate())
-        .studyStartDate(group.getStudyStartDate())
-        .studyEndDate(group.getStudyEndDate())
-        .commentCount(group.getComments().size())
-        .memberStatus(memberStatus)
-        .participants(
-            group.getMembers().stream()
-                .map(m -> m.getMember().getNickname())
-                .collect(Collectors.toList())
-        )
-        .comments(
-            group.getComments().stream()
-                .distinct()
-                .map(comment -> CommentWithRepliesResponse.from(comment, replyMap.getOrDefault(comment.getId(), List.of())))
-                .toList()
-        )
-        .techStacks(
-            group.getStudyGroupTechTags().stream()
-                .map(studyGroupTechTag -> TechTagDto.from(studyGroupTechTag.getTechStack()))
-                .collect(Collectors.toSet())
-        )
-        .build();
+            .id(group.getId())
+            .title(group.getTitle())
+            .explanation(group.getExplanation())
+            .writer(group.getCreator().getNickname())
+            .memberCount(group.getMembers().size())
+            .groupLimit(group.getGroupMemberCount())
+            .isOffline(group.getIsOffline())
+            .recruitStartDate(group.getRecruitStartDate())
+            .recruitEndDate(group.getRecruitEndDate())
+            .studyStartDate(group.getStudyStartDate())
+            .studyEndDate(group.getStudyEndDate())
+            .commentCount(group.getComments().size())
+            .memberStatus(memberStatus)
+            .participants(
+                group.getMembers().stream()
+                    .map(m -> m.getMember().getNickname())
+                    .collect(Collectors.toList())
+            )
+            .comments(
+                group.getComments().stream()
+                    .distinct()
+                    .map(comment -> CommentWithRepliesResponse.from(comment, replyMap.getOrDefault(comment.getId(), List.of())))
+                    .toList()
+            )
+            .techStacks(
+                group.getStudyGroupTechTags().stream()
+                    .map(studyGroupTechTag -> TechTagDto.from(studyGroupTechTag.getTechStack()))
+                    .collect(Collectors.toSet())
+            )
+            .addresses(
+                    group.getStudyGroupAddresses().stream()
+                            .map(StudyGroupAddress::getAddress)
+                            .map(AddressDto::from)
+                            .collect(Collectors.toSet())
+            )
+            .build();
   }
 }
