@@ -9,6 +9,7 @@ import com.samsamhajo.deepground.member.entity.MemberProfile;
 import com.samsamhajo.deepground.studyGroup.dto.*;
 import com.samsamhajo.deepground.studyGroup.entity.*;
 import com.samsamhajo.deepground.studyGroup.exception.StudyGroupNotFoundException;
+import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupTechTagRepository;
 import com.samsamhajo.deepground.techStack.entity.TechStack;
 import com.samsamhajo.deepground.techStack.repository.TechStackRepository;
@@ -36,6 +37,7 @@ public class StudyGroupService {
   private final TechStackRepository techStackRepository;
   private final StudyGroupTechTagRepository studyGroupTechTagRepository;
   private final AddressRepository addressRepository;
+  private final StudyGroupAddressRepository studyGroupAddressRepository;
 
 
   @Transactional
@@ -137,17 +139,7 @@ public class StudyGroupService {
     validateRequest(request);
     ChatRoom chatRoom = chatRoomService.createStudyGroupChatRoom(creator);
 
-    List<StudyGroupAddress> studyGroupAddresses = new ArrayList<>();
-    if (request.getIsOffline() && request.getAddressIds() != null) {
-      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
-      if (addresses.size() != request.getAddressIds().size()) {
-        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
-      }
-      studyGroupAddresses = addresses.stream()
-              .map(address -> StudyGroupAddress.of(null, address))
-              .toList();
-    }
-
+    // StudyGroupAddress를 실제로 저장하도록 구현
     StudyGroup studyGroup = StudyGroup.of(
             chatRoom,
             request.getTitle(),
@@ -158,10 +150,22 @@ public class StudyGroupService {
             request.getRecruitEndDate(),
             request.getGroupMemberCount(),
             creator,
-            request.getIsOffline(),
-            studyGroupAddresses
+            request.getIsOffline()
     );
+
     StudyGroup savedGroup = studyGroupRepository.save(studyGroup);
+
+    if (request.getIsOffline() && request.getAddressIds() != null) {
+      List<Address> addresses = addressRepository.findAllById(request.getAddressIds());
+
+      if (addresses.size() != request.getAddressIds().size()) {
+        throw new AddressException(AddressErrorCode.INVALID_ADDRESS_INCLUDED);
+      }
+
+      addresses.forEach(address -> studyGroupAddressRepository.save(StudyGroupAddress.of(savedGroup, address)));
+    }
+
+
     List<TechStack> techStacks = getTechStacksByNames(request.getTechStackNames());
     for (TechStack techStack : techStacks) {
       StudyGroupTechTag link = StudyGroupTechTag.of(savedGroup, techStack);
