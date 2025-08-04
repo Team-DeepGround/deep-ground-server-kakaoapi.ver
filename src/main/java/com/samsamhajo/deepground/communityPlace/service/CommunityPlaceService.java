@@ -4,6 +4,7 @@ package com.samsamhajo.deepground.communityPlace.service;
 import com.samsamhajo.deepground.communityPlace.dto.CommunityPlaceReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.AddressDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.SearchReviewSummaryDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -140,6 +142,28 @@ public class CommunityPlaceService {
     public List<CommunityPlaceReviewDto> selectCommunityPlaceByReviewScope() {
 
         return specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
+    }
+
+    //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
+    public ReviewDetailDto SearchReviewDetail(Long placeId, Long reviewId) {
+        CommunityPlaceReview communityPlaceReview = communityPlaceRepository.findById(reviewId).orElseThrow(
+                () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
+
+        List<CommunityPlaceMedia> communityPlaceMedia = communityPlaceMediaRepository.findAllByCommunityPlaceReviewId(communityPlaceReview.getId());
+
+        List<String> mediaUrl = communityPlaceMedia.stream()
+                .map(CommunityPlaceMedia :: getMediaUrl)
+                .collect(Collectors.toList());
+
+        return ReviewDetailDto.of(
+                communityPlaceReview.getPlaceId(),
+                communityPlaceReview.getId(),
+                communityPlaceReview.getContent(),
+                communityPlaceReview.getMember().getNickname(),
+                communityPlaceReview.getScope(),
+                communityPlaceReview.getMember().getId(),
+                mediaUrl
+        );
     }
 }
 
