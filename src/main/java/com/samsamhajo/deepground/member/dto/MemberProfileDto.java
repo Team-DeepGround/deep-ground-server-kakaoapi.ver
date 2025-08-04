@@ -1,6 +1,5 @@
 package com.samsamhajo.deepground.member.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.entity.MemberProfile;
 import jakarta.validation.constraints.NotBlank;
