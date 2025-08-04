@@ -34,4 +34,11 @@ public class AddressService {
                 .map(AddressDto::from)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<AddressDto> getDongsByCityAndGuUsingLike(String city, String gu) {
+        return addressRepository.findByCityLikeAndGuOrderByDongAsc(city+"%", gu).stream()
+                .map(AddressDto::from)
+                .toList();
+    }
 }
