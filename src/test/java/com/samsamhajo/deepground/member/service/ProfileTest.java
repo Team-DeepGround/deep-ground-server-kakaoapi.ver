@@ -90,7 +90,7 @@ public class ProfileTest {
                 .company("삼삼하조")
                 .liveIn("서울")
                 .education("컴퓨터공학과")
-                .techStack(List.of("Java", "Spring"))
+                .techStack(List.of("Java", "JavaScript"))
                 .githubUrl("https://github.com/new")
                 .linkedInUrl("https://linkedin.com/new")
                 .websiteUrl("https://new.dev")
