@@ -2,6 +2,7 @@ package com.samsamhajo.deepground.communityPlace.controller;
 
 
 import com.samsamhajo.deepground.auth.security.CustomUserDetails;
+import com.samsamhajo.deepground.communityPlace.dto.CommunityPlaceReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
@@ -67,18 +68,18 @@ public class CommunityPlaceController {
     }
   
     @GetMapping("/ByReviewCount")
-    public ResponseEntity<SuccessResponse<List<ReviewStatistics>>> selectCommunityPlaceByReviewCount() {
+    public ResponseEntity<SuccessResponse<List<CommunityPlaceReviewDto>>> selectCommunityPlaceByReviewCount() {
 
-        List<ReviewStatistics> communityPlaceReview = communityPlaceService.selectCommunityPlaceByReviewCount();
+        List<CommunityPlaceReviewDto> communityPlaceReview = communityPlaceService.selectCommunityPlaceByReviewCount();
 
         return ResponseEntity
                 .ok(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITYPLACE_SUCCESS_SELECT_BY_REVIEW_COUNT,communityPlaceReview));
     }
 
     @GetMapping("/ByReviewScope")
-    public ResponseEntity<SuccessResponse<List<ReviewStatistics>>> selectCommunityPlaceByReviewScope() {
+    public ResponseEntity<SuccessResponse<List<CommunityPlaceReviewDto>>> selectCommunityPlaceByReviewScope() {
 
-        List<ReviewStatistics> communityPlaceReview = communityPlaceService.selectCommunityPlaceByReviewScope();
+        List<CommunityPlaceReviewDto> communityPlaceReview = communityPlaceService.selectCommunityPlaceByReviewScope();
 
         return ResponseEntity
                 .ok(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITYPLACE_SUCCESS_SELECT_BY_REVIEW_SCOPE,communityPlaceReview));

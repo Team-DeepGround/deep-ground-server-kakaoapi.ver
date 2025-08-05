@@ -15,11 +15,6 @@ import java.util.Optional;
 @Repository
 public interface SpecificAddressRepository extends JpaRepository<SpecificAddress,Long> {
 
-    @Query("SELECT AVG(cpr.scope), COUNT(cpr.content) FROM SpecificAddress sa " +
-            "JOIN sa.communityPlaceReviews cpr " +
-            "WHERE sa.id = :specificAddressId")
-    Optional<CommunityPlaceReview> findByIdCountReviewsAndScopeAverage(@Param("specificAddressId") Long specificAddressId);
-
     Optional<SpecificAddress> findByNameAndLocation(String name, String location);
 
     @Query("SELECT sa.name, sa.number " +
@@ -35,4 +30,10 @@ public interface SpecificAddressRepository extends JpaRepository<SpecificAddress
             "GROUP BY sa.name, sa.number " +
             "ORDER BY AVG(r.scope) DESC")
     List<CommunityPlaceReviewDto> findAllCommunityPlaceByReviewScopeDesc();
+
+    @Query("SELECT AVG(r.scope) FROM SpecificAddress sa Left Join sa.communityPlaceReviews r WHERE sa.id = :specificAddressId")
+    Double avgScopeBySpecificAddressId( @Param("specificAddressId") Long specificAddressId);
+
+    @Query("SELECT COUNT(r) FROM SpecificAddress sa Left Join sa.communityPlaceReviews r WHERE sa.id = :specificAddressId")
+    Long countReviewBySpecificAddressId( @Param("specificAddressId") Long specificAddressId);
 }
