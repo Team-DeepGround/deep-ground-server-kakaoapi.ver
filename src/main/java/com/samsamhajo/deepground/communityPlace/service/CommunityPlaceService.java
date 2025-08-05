@@ -2,6 +2,7 @@ package com.samsamhajo.deepground.communityPlace.service;
 
 
 import com.samsamhajo.deepground.communityPlace.dto.CommunityPlaceReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
 import com.samsamhajo.deepground.communityPlace.dto.request.AddressDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
@@ -107,12 +108,15 @@ public class CommunityPlaceService {
 
     }
 
-    public CommunityPlaceReview selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
+    public ReviewStatistics selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
 
-        CommunityPlaceReview communityPlaceReview = specificAddressRepository.findByIdCountReviewsAndScopeAverage(specificAddressId)
+        specificAddressRepository.findById(specificAddressId)
                 .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITYPLACE_NOT_FOUND));
 
-        return communityPlaceReview;
+        Double avgScope = specificAddressRepository.avgScopeBySpecificAddressId(specificAddressId);
+        Long reviewCount = specificAddressRepository.countReviewBySpecificAddressId(specificAddressId);
+
+        return ReviewStatistics.of(avgScope,reviewCount);
     }
   
     //TODO: 리뷰 작성 로직 구현 후 테스트 코드 작성 후 테스트 및 SWAGGER 통해 컨트롤러 테스트 진행 예정
