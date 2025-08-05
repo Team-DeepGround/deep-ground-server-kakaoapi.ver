@@ -2,7 +2,7 @@ package com.samsamhajo.deepground.admin.controller;
 
 import com.samsamhajo.deepground.admin.dto.AdminDashboardStatsResponse;
 import com.samsamhajo.deepground.admin.service.AdminService;
-import com.samsamhajo.deepground.auth.success.AdminSuccessCode;
+import com.samsamhajo.deepground.admin.success.AdminSuccessCode;
 import com.samsamhajo.deepground.global.success.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
