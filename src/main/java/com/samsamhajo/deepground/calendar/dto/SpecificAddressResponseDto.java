@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class SpecificAddressResponseDto {
+    private Long id;
     private String name;
     private String address;
     private String phone;
@@ -16,6 +17,7 @@ public class SpecificAddressResponseDto {
 
     public static SpecificAddressResponseDto from(SpecificAddress specificAddress) {
         return SpecificAddressResponseDto.builder()
+                .id(specificAddress.getId())
                 .name(specificAddress.getName())
                 .address(specificAddress.getLocation())
                 .phone(specificAddress.getPhone())

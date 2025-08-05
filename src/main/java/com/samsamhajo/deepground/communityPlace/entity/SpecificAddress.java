@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
 
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@SQLRestriction("is_deleted = false")
 @Table(name = "specific_address")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SpecificAddress extends BaseEntity {
@@ -54,7 +56,7 @@ public class SpecificAddress extends BaseEntity {
     @OneToMany(mappedBy = "specificAddress", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudySchedule> studySchedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "specificAddress", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "specificAddressId", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<CommunityPlaceReview> communityPlaceReviews = new ArrayList<>();
 

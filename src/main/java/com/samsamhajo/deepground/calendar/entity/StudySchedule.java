@@ -9,10 +9,12 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
 @Entity
+@SQLRestriction("is_deleted = false")
 @Table(name = "study_schedules")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

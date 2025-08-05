@@ -8,30 +8,22 @@ public class ReviewResponseDto {
     private Long id;
     private double scope;
     private String content;
-    private String location;
-    private double latitude;
-    private double longitude;
     private Long memberId;
-    private Long placeId;
+    private Long specificAddressId;
     private List<String> mediaUrls;
 
-    public ReviewResponseDto(Long id, double scope, String content,
-                             String location, double latitude, double longitude, Long memberId, Long placeId,
+    public ReviewResponseDto(Long id, double scope, String content, Long memberId, Long specificAddressId,
                              List<String> mediaUrls) {
         this.id = id;
         this.scope = scope;
         this.content = content;
-        this.location = location;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.memberId = memberId;
-        this.placeId = placeId;
+        this.specificAddressId = specificAddressId;
         this.mediaUrls = mediaUrls;
     }
 
-    public static ReviewResponseDto of(Long id, double scope, String content,
-                                       String location, double latitude, double longitude, Long memberId, Long placeId,
+    public static ReviewResponseDto of(Long id, double scope, String content, Long memberId, Long specificAddressId,
                                        List<String> mediaUrls) {
-        return new ReviewResponseDto(id, scope, content, location, latitude, longitude, memberId,placeId, mediaUrls);
+        return new ReviewResponseDto(id, scope, content, memberId, specificAddressId, mediaUrls);
     }
 }

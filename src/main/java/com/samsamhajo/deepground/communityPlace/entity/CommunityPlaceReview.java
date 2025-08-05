@@ -7,8 +7,10 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
+@SQLRestriction("is_deleted = false")
 @Getter
 @Table(name = "community_place_reviews")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,29 +27,22 @@ public class CommunityPlaceReview extends BaseEntity {
     @Column(name = "community_place_content")
     private String content;
 
-    @Column(name = "place_id")
-    private Long placeId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "specific_address_id")
-    @JsonBackReference //순환참조 방지 : (Depth 깊이 에러 발생)
-    private SpecificAddress specificAddress;
+    @Column(name = "specific_address_id")
+    private Long specificAddressId;
 
-    private CommunityPlaceReview(double scope,String content, Long placeId, Member member){
+    private CommunityPlaceReview(double scope,String content, Long specificAddressId ,Member member){
         this.scope = scope;
         this.content = content;
-        this.placeId = placeId;
+        this.specificAddressId = specificAddressId;
         this.member = member;
     }
 
-    public static CommunityPlaceReview of(double scope,String content, Long placeId, Member member, SpecificAddress specificAddress) {
-        CommunityPlaceReview review = new CommunityPlaceReview(scope, content, placeId, member);
-        review.specificAddress = specificAddress;
-        specificAddress.getCommunityPlaceReviews().add(review);
+    public static CommunityPlaceReview of(double scope,String content, Member member, Long specificAddressId) {
+        CommunityPlaceReview review = new CommunityPlaceReview(scope, content, specificAddressId ,member);
         return review;
     }
 }

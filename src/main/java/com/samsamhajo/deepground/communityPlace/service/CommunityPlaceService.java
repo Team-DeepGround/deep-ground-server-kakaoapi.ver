@@ -13,7 +13,7 @@ import com.samsamhajo.deepground.communityPlace.entity.CommunityPlaceMedia;
 import com.samsamhajo.deepground.communityPlace.entity.CommunityPlaceReview;
 import com.samsamhajo.deepground.communityPlace.entity.SpecificAddress;
 import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceMediaRepository;
-import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceRepository;
+import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceReviewRepository;
 import com.samsamhajo.deepground.communityPlace.repository.SpecificAddressRepository;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.exception.MemberErrorCode;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CommunityPlaceService {
 
-    private final CommunityPlaceRepository communityPlaceRepository;
+    private final CommunityPlaceReviewRepository communityPlaceReviewRepository;
     private final ValidService validService;
     private final CommunityPlaceMediaService communityPlaceMediaService;
     private final SpecificAddressRepository specificAddressRepository;
@@ -47,14 +47,15 @@ public class CommunityPlaceService {
     private final CommunityPlaceMediaRepository communityPlaceMediaRepository;
 
     @Transactional
-    public ReviewResponseDto createReview(CreateReviewDto createReviewDto, Long memberId) {
+    public ReviewResponseDto createReview(CreateReviewDto createReviewDto, Long specificAddressId, Long memberId) {
 
         // Member가 존재하는지 여부 검증
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new MemberException(MemberErrorCode.INVALID_MEMBER_ID));
 
-        //AddressDto를 통해 주소, 좌표값 SpecificAddress로 저장
-        AddressDto dto = createReviewDto.getAddress();
+        SpecificAddress specificAddress = specificAddressRepository.findById(specificAddressId).orElseThrow(
+                ()-> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND));
+
 
         /**
          *  GeometryFactory : Point, Polygon등 공간 객체를 생성하는 클래스
@@ -64,27 +65,26 @@ public class CommunityPlaceService {
          *  MySQL의 공간 데이터 타입(Point, Geometry)은 좌표계가 명확히 지정되지 않는다면 계산할 수 없다고 함.
          *  ->  공간 객체 생성 도구를 사용하고, GPS 좌표계를 지정해주어 보다 정확한 위도/경도 좌표를 갖는 공간 객체를 생성함.
          */
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+//        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+//
+//        // dto 내부 메소드를 통해, geoMetryFactory를 이용한 Point 클래스로 좌표 생성
+//        Point point = dto.toPoint(geometryFactory);
+//
+//        // 이후 주소 + 좌표를 통해 SpecificAddress 객체 저장
+//        SpecificAddress address = specificAddressRepository.save(
+//                SpecificAddress.of(dto.getAddress(), point)
+//        );
 
-        // dto 내부 메소드를 통해, geoMetryFactory를 이용한 Point 클래스로 좌표 생성
-        Point point = dto.toPoint(geometryFactory);
-
-        // 이후 주소 + 좌표를 통해 SpecificAddress 객체 저장
-        SpecificAddress address = specificAddressRepository.save(
-                SpecificAddress.of(dto.getAddress(), point)
-        );
-
-        //SpecificAddress 저장 후, Review 생성
+        //SpecificAddress 저장 후, Review 생성함
         CommunityPlaceReview review = CommunityPlaceReview.of(
                 createReviewDto.getScope(),
                 createReviewDto.getContent(),
-                createReviewDto.getPlaceId(),
                 member,
-                address
+                specificAddress.getId()
         );
 
         // 별점과 리뷰 CommunityPlaceReview에 저장
-        communityPlaceRepository.save(review);
+        communityPlaceReviewRepository.save(review);
 
         //media 저장
         List<String> mediaUrl = createCommunityPlaceMedia(createReviewDto, review);
@@ -94,11 +94,8 @@ public class CommunityPlaceService {
                 review.getId(),
                 review.getScope(),
                 review.getContent(),
-                address.getLocation(),
-                point.getY(), // latitude(위도)
-                point.getX(),// longitude(경도)
                 member.getId(),
-                review.getPlaceId(),
+                specificAddressId,
                 mediaUrl
         );
     }
@@ -125,9 +122,9 @@ public class CommunityPlaceService {
     }
   
     //TODO: 리뷰 작성 로직 구현 후 테스트 코드 작성 후 테스트 및 SWAGGER 통해 컨트롤러 테스트 진행 예정
-    public ReviewListResponseDto SearchReviews(Long placeId, Pageable pageable) {
+    public ReviewListResponseDto SearchReviews(Long specificAddressId, Pageable pageable) {
 
-        Page<CommunityPlaceReview> reviewPage = communityPlaceRepository.findByPlaceId(placeId, pageable);
+        Page<CommunityPlaceReview> reviewPage = communityPlaceReviewRepository.findBySpecificAddressId(specificAddressId, pageable);
 
         List<SearchReviewSummaryDto> reviews = reviewPage.stream()
                 .map(communityPlaceReview -> {
@@ -166,8 +163,8 @@ public class CommunityPlaceService {
     }
 
     //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
-    public ReviewDetailDto SearchReviewDetail(Long placeId, Long reviewId) {
-        CommunityPlaceReview communityPlaceReview = communityPlaceRepository.findById(reviewId).orElseThrow(
+    public ReviewDetailDto SearchReviewDetail(Long reviewId, Long memberId) {
+        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(reviewId).orElseThrow(
                 () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
 
         List<CommunityPlaceMedia> communityPlaceMedia = communityPlaceMediaRepository.findAllByCommunityPlaceReviewId(communityPlaceReview.getId());
@@ -177,7 +174,6 @@ public class CommunityPlaceService {
                 .collect(Collectors.toList());
 
         return ReviewDetailDto.of(
-                communityPlaceReview.getPlaceId(),
                 communityPlaceReview.getId(),
                 communityPlaceReview.getContent(),
                 communityPlaceReview.getMember().getNickname(),

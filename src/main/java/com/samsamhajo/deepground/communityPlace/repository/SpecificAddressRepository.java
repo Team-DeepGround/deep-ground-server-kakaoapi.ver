@@ -1,6 +1,5 @@
 package com.samsamhajo.deepground.communityPlace.repository;
 
-import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlaceDto;
 import com.samsamhajo.deepground.communityPlace.entity.SpecificAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
