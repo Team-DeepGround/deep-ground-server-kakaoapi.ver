@@ -1,9 +1,7 @@
 package com.samsamhajo.deepground.admin.service;
 
 import com.samsamhajo.deepground.admin.dto.AdminDashboardStatsResponse;
-import com.samsamhajo.deepground.communityPlace.entity.CommunityPlaceReview;
-import com.samsamhajo.deepground.communityPlace.entity.SpecificAddress;
-import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceRepository;
+import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceReviewRepository;
 import com.samsamhajo.deepground.feed.feed.entity.Feed;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
@@ -35,7 +33,7 @@ public class AdminServiceTest {
     private FeedRepository feedRepository;
 
     @Autowired
-    private CommunityPlaceRepository communityPlaceRepository;
+    private CommunityPlaceReviewRepository communityPlaceReviewRepository;
 
     @Autowired
     private SpecificAddressRepository specificAddressRepository;

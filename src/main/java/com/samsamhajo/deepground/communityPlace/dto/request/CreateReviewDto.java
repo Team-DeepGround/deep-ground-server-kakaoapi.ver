@@ -1,7 +1,5 @@
 package com.samsamhajo.deepground.communityPlace.dto.request;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,10 +17,6 @@ public class CreateReviewDto {
     private double scope;
     @Size(min = 2, message = "리뷰 내용은 최소 2글자 이상 입력해야합니다.")
     private String content;
-    @NotNull(message = "주소 정보는 필수입니다.")
-    @Valid
-    private AddressDto address;
-    private Long placeId;
     private List<MultipartFile> images = new ArrayList<>();
 
 

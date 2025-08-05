@@ -38,9 +38,10 @@ public class CommunityPlaceController {
     @PostMapping(value = "/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse> createReview(
             @Valid @ModelAttribute CreateReviewDto createReviewDto,
+            @RequestParam Long specificAddressId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        ReviewResponseDto reviewResponseDto = communityPlaceService.createReview(createReviewDto, customUserDetails.getMember().getId());
+        ReviewResponseDto reviewResponseDto = communityPlaceService.createReview(createReviewDto, specificAddressId,customUserDetails.getMember().getId());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -56,11 +57,11 @@ public class CommunityPlaceController {
 
     }
 
-    @GetMapping("/reviews/{placeId}")
+    @GetMapping("/reviews/{specificAddressId}")
     public ResponseEntity<SuccessResponse> getCommunityPlaceReviews(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable Long placeId) {
-        ReviewListResponseDto reviewListResponseDto = communityPlaceService.SearchReviews(placeId, pageable);
+            @PathVariable Long specificAddressId) {
+        ReviewListResponseDto reviewListResponseDto = communityPlaceService.SearchReviews(specificAddressId, pageable);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

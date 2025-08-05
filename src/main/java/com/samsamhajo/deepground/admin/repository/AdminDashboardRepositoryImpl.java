@@ -1,6 +1,6 @@
 package com.samsamhajo.deepground.admin.repository;
 
-import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceRepository;
+import com.samsamhajo.deepground.communityPlace.repository.CommunityPlaceReviewRepository;
 import com.samsamhajo.deepground.feed.feed.repository.FeedRepository;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
@@ -15,7 +15,7 @@ public class AdminDashboardRepositoryImpl implements AdminDashboardRepository{
 
     private final MemberRepository memberRepository;
     private final FeedRepository feedRepository;
-    private final CommunityPlaceRepository communityPlaceRepository;
+    private final CommunityPlaceReviewRepository communityPlaceReviewRepository;
     private final StudyGroupRepository studyGroupRepository;
 
     @Override
@@ -35,12 +35,12 @@ public class AdminDashboardRepositoryImpl implements AdminDashboardRepository{
 
     @Override
     public Long countTotalReviews() {
-        return communityPlaceRepository.count();
+        return communityPlaceReviewRepository.count();
     }
 
     @Override
     public Long countReviewsToday(LocalDateTime today) {
-        return communityPlaceRepository.countByCreatedAtAfter(today);
+        return communityPlaceReviewRepository.countByCreatedAtAfter(today);
     }
 
     @Override
