@@ -7,14 +7,14 @@ import lombok.Getter;
 public class ReviewStatistics {
 
     private double avgScope;
-    private Long countContent;
+    private Long reviewCount;
 
-    public ReviewStatistics (double avgScope,Long countContent) {
+    public ReviewStatistics (double avgScope,Long reviewCount) {
         this.avgScope = avgScope;
-        this.countContent = countContent;
+        this.reviewCount = reviewCount;
     }
 
-    public static ReviewStatistics of(double avgScope,Long countContent) {
-        return new ReviewStatistics(avgScope,countContent);
+    public static ReviewStatistics of(double avgScope,Long reviewCount) {
+        return new ReviewStatistics(avgScope,reviewCount);
     }
 }
