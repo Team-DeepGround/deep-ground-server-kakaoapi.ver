@@ -75,7 +75,7 @@ public class CommunityPlaceService {
 //                SpecificAddress.of(dto.getAddress(), point)
 //        );
 
-        //SpecificAddress 저장 후, Review 생성
+        //SpecificAddress 저장 후, Review 생성함
         CommunityPlaceReview review = CommunityPlaceReview.of(
                 createReviewDto.getScope(),
                 createReviewDto.getContent(),
