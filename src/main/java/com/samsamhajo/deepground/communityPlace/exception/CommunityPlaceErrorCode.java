@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum CommunityPlaceErrorCode implements ErrorCode {
-    COMMUNITYPLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스터디장소는 찾을 수 없습니다"),
+    COMMUNITY_PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스터디장소는 찾을 수 없습니다"),
     REVIEW_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 리뷰가 없습니다."),
     REVIEW_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND,"댓글을 찾을 수 없습니다"),
     REVIEW_AVG_SCOPE_NOT_FOUND(HttpStatus.NOT_FOUND,"평점을 찾을 수 없습니다");
