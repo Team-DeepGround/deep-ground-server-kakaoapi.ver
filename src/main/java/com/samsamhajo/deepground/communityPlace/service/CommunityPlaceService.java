@@ -1,7 +1,7 @@
 package com.samsamhajo.deepground.communityPlace.service;
 
 
-import com.samsamhajo.deepground.communityPlace.dto.CommunityPlaceReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlaceDto;
 import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
 import com.samsamhajo.deepground.communityPlace.dto.request.AddressDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
@@ -105,13 +105,12 @@ public class CommunityPlaceService {
 
     private List<String> createCommunityPlaceMedia(CreateReviewDto createReviewDto, CommunityPlaceReview communityPlaceReview) {
         return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, createReviewDto.getImages());
-
     }
 
     public ReviewStatistics selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
 
         specificAddressRepository.findById(specificAddressId)
-                .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITYPLACE_NOT_FOUND));
+                .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND));
 
         Double avgScope = specificAddressRepository.avgScopeBySpecificAddressId(specificAddressId);
         if (avgScope == null) {
@@ -143,15 +142,27 @@ public class CommunityPlaceService {
         return ReviewListResponseDto.of(reviews, reviewPage.getTotalPages());
     }
 
-    //TODO : 후에 스터디 일정 생성 시 가게정보 저장 로직 완료되면 테스트 예정 + N개의 리뷰마다 N번의 미디어 조회가 발생하기 때문에, 추후에 리팩토링 예정
-    public List<CommunityPlaceReviewDto> selectCommunityPlaceByReviewCount() {
+    public List<SelectCommunityPlaceDto> selectCommunityPlaceByReviewCount() {
 
-        return specificAddressRepository.findAllCommunityPlaceByReviewCountDesc();
+        List<SpecificAddress> selectCommunityPlaceByReviewCountDesc = specificAddressRepository.findAllCommunityPlaceByReviewCountDesc();
+        if (selectCommunityPlaceByReviewCountDesc.isEmpty()) {
+            throw new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND);
+        }
+
+        return selectCommunityPlaceByReviewCountDesc.stream()
+                .map(SelectCommunityPlaceDto::of)
+                .toList();
     }
 
-    public List<CommunityPlaceReviewDto> selectCommunityPlaceByReviewScope() {
+    public List<SelectCommunityPlaceDto> selectCommunityPlaceByReviewScope() {
 
-        return specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
+        List<SpecificAddress> selectCommunityPlaceByAvgScope = specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
+        if (selectCommunityPlaceByAvgScope.isEmpty()) {
+            throw new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND);
+        }
+        return selectCommunityPlaceByAvgScope.stream()
+                .map(SelectCommunityPlaceDto::of)
+                .toList();
     }
 
     //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
