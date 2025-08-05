@@ -73,6 +73,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
+          envs: ENV_FILE=/home/ubuntu/deepground/.env
           script: |
             cd /home/ubuntu/deepground
 
