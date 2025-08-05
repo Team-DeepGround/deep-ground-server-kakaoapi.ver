@@ -1,4 +1,4 @@
-package com.samsamhajo.deepground.auth.success;
+package com.samsamhajo.deepground.admin.success;
 
 import com.samsamhajo.deepground.global.success.SuccessCode;
 import lombok.Getter;

@@ -35,7 +35,7 @@ public class AdminServiceTest {
     private FeedRepository feedRepository;
 
     @Autowired
-    private CommunityPlaceRepository reviewRepository;
+    private CommunityPlaceRepository communityPlaceRepository;
 
     @Autowired
     private SpecificAddressRepository specificAddressRepository;
@@ -78,6 +78,8 @@ public class AdminServiceTest {
         assertEquals(1L, stats.getTotalMembers());
         assertEquals(1L, stats.getNewMembersToday());
         assertEquals(1L, stats.getTotalPosts());
+        assertEquals(0L, stats.getTotalReviews());
+        assertEquals(0L, stats.getReviewsToday());
         assertEquals(1L, stats.getTotalStudyGroups());
     }
 }
