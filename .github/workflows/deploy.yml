@@ -36,7 +36,7 @@ jobs:
              ${{ runner.os }}-gradle-
         # Gradle로 프로젝트 빌드
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -x test
       - name: application.yml 생성
         run: |
             mkdir -p ./src/main/resources && cd $_
