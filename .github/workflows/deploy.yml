@@ -38,12 +38,11 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test
       - name: application.yml 생성
+        working-directory: ${{ env.working-directory }}
         run: |
-            mkdir -p ./src/main/resources && cd $_
-            touch ./application.yml
-            echo "${{ secrets.STAGING_YML }}" > ./application.yml
-            cat ./application.yml
-            working-directory: ${{ env.working-directory }}
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.STAGING_YML }}" | base64 -d > ./src/main/resources/application.yml
+          cat ./src/main/resources/application.yml
         # Docker 빌드를 위한 설정
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
