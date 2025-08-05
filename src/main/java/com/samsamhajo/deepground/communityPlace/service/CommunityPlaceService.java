@@ -3,10 +3,11 @@ package com.samsamhajo.deepground.communityPlace.service;
 
 import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlaceDto;
 import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
-import com.samsamhajo.deepground.communityPlace.dto.request.AddressDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.ModifyReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.SearchReviewSummaryDto;
+import com.samsamhajo.deepground.communityPlace.dto.response.ModifyReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.entity.CommunityPlaceMedia;
@@ -21,10 +22,9 @@ import com.samsamhajo.deepground.member.exception.MemberException;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceErrorCode;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceException;
+import com.samsamhajo.deepground.qna.question.Dto.QuestionUpdateRequestDto;
+import com.samsamhajo.deepground.qna.question.entity.Question;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -104,6 +104,10 @@ public class CommunityPlaceService {
         return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, createReviewDto.getImages());
     }
 
+    private List<String> updateCommunityPlaceMedia(ModifyReviewDto modifyReviewDto, CommunityPlaceReview communityPlaceReview) {
+        return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, modifyReviewDto.getImages());
+    }
+
     public ReviewStatistics selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
 
         specificAddressRepository.findById(specificAddressId)
@@ -179,6 +183,27 @@ public class CommunityPlaceService {
                 communityPlaceReview.getMember().getNickname(),
                 communityPlaceReview.getScope(),
                 communityPlaceReview.getMember().getId(),
+                mediaUrl
+        );
+    }
+
+    public ModifyReviewResponseDto modifyCommunityPlaceReview(ModifyReviewDto modifyReviewDto, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new MemberException(MemberErrorCode.INVALID_MEMBER_ID));
+
+        CommunityPlaceReview communityPlaceReview =  communityPlaceReviewRepository.findById(modifyReviewDto.getCommunityPlaceReviewId()).orElseThrow(
+                () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
+
+        communityPlaceReviewRepository.deleteAllByCommunityPlaceReviewId(communityPlaceReview.getId());
+        communityPlaceReview.updateReview(modifyReviewDto.getScope(), modifyReviewDto.getContent(), modifyReviewDto.getSpecificAddressId());
+        List<String> mediaUrl = updateCommunityPlaceMedia(modifyReviewDto, communityPlaceReview);
+
+        return ModifyReviewResponseDto.of(
+                communityPlaceReview.getId(),
+                memberId,
+                modifyReviewDto.getScope(),
+                modifyReviewDto.getContent(),
+                modifyReviewDto.getSpecificAddressId(),
                 mediaUrl
         );
     }

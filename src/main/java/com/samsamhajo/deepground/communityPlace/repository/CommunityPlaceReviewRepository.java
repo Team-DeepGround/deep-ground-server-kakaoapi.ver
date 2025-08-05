@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Repository
 public interface CommunityPlaceReviewRepository extends JpaRepository<CommunityPlaceReview,Long> {
     Page<CommunityPlaceReview> findBySpecificAddressId(Long specificAddressId, Pageable pageable);
-
-
     Long countByCreatedAtAfter(LocalDateTime createdAtAfter);
+    Long deleteAllByCommunityPlaceReviewId(Long communityPlaceReviewId);
 }
