@@ -114,7 +114,13 @@ public class CommunityPlaceService {
                 .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITYPLACE_NOT_FOUND));
 
         Double avgScope = specificAddressRepository.avgScopeBySpecificAddressId(specificAddressId);
+        if (avgScope == null) {
+            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_COUNT_NOT_FOUND);
+        }
         Long reviewCount = specificAddressRepository.countReviewBySpecificAddressId(specificAddressId);
+        if (reviewCount == null) {
+            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_AVG_SCOPE_NOT_FOUND);
+        }
 
         return ReviewStatistics.of(avgScope,reviewCount);
     }
