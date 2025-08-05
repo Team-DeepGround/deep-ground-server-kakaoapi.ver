@@ -157,8 +157,7 @@ public class StudyGroupService {
             request.getRecruitEndDate(),
             request.getGroupMemberCount(),
             creator,
-            request.getIsOffline(),
-            new ArrayList<>()
+            request.getIsOffline()
     );
     studyGroupRepository.save(studyGroup);
 

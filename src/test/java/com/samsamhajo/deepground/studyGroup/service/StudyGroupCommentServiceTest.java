@@ -66,9 +66,7 @@ class StudyGroupCommentServiceTest extends IntegrationTestSupport {
         LocalDate.now().plusDays(5),
         10,
         member,
-        true,
-            List.of(groupAddress)
-    );
+        true);
     studyGroupRepository.save(group);
     this.studyGroupId = group.getId();
 
