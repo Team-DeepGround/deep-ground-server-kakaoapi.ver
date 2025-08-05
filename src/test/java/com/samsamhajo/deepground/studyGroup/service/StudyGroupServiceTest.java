@@ -33,10 +33,6 @@ public class StudyGroupServiceTest {
     private StudyGroupAddressRepository studyGroupAddressRepository;
     private StudyGroupService studyGroupService;
 
-    private StudyGroupAddressRepository studyGroupAddressRepository;
-
-    private AddressRepository addressRepository;
-
     @BeforeEach
     void setUp() {
         studyGroupRepository = mock(StudyGroupRepository.class);

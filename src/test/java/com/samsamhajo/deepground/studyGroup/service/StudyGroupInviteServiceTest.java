@@ -54,7 +54,7 @@ class StudyGroupInviteServiceTest extends IntegrationTestSupport {
         null, "스터디", "소개",
         LocalDate.now(), LocalDate.now().plusDays(10),
         LocalDate.now(), LocalDate.now().plusDays(3),
-        5, owner, true, List.of(groupAddress)
+        5, owner, true
     );
     studyGroupRepository.save(group);
   }
