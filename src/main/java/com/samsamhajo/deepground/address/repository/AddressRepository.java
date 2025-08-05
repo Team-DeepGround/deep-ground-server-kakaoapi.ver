@@ -16,4 +16,5 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     List<String> findDistinctGusByCity(String city);
 
     List<Address> findByCityAndGuOrderByDongAsc(String city, String gu);
+    List<Address> findByCityLikeAndGuOrderByDongAsc(String city, String gu);
 }

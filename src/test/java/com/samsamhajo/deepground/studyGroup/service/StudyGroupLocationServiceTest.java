@@ -45,7 +45,7 @@ class StudyGroupLocationServiceTest {
                 null, "스터디 제목", "스터디 설명",
                 LocalDate.now().plusDays(1), LocalDate.now().plusDays(10),
                 LocalDate.now(), LocalDate.now().plusDays(5),
-                5, creator, false, null
+                5, creator, false
         );
     }
 

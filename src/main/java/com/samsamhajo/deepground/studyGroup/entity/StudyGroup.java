@@ -80,8 +80,7 @@ public class StudyGroup extends BaseEntity {
         ChatRoom chatRoom, String title, String explanation,
         LocalDate studyStartDate, LocalDate studyEndDate,
         LocalDate recruitStartDate, LocalDate recruitEndDate,
-        Integer groupMemberCount, Member member, Boolean isOffline,
-        List<StudyGroupAddress> studyGroupAddresses
+        Integer groupMemberCount, Member member, Boolean isOffline
     ) {
         this.chatRoom = chatRoom;
         this.title = title;
@@ -93,21 +92,19 @@ public class StudyGroup extends BaseEntity {
         this.groupMemberCount = groupMemberCount;
         this.creator = member;
         this.isOffline = isOffline;
-        this.studyGroupAddresses = studyGroupAddresses != null ? studyGroupAddresses : new ArrayList<>();
     }
 
     public static StudyGroup of(
         ChatRoom chatRoom, String title, String explanation,
         LocalDate studyStartDate, LocalDate studyEndDate,
         LocalDate recruitStartDate, LocalDate recruitEndDate,
-        Integer groupMemberCount, Member member, Boolean isOffline,
-        List<StudyGroupAddress> studyGroupAddresses
+        Integer groupMemberCount, Member member, Boolean isOffline
     ) {
         return new StudyGroup(
             chatRoom, title, explanation,
             studyStartDate, studyEndDate,
             recruitStartDate, recruitEndDate,
-            groupMemberCount, member, isOffline, studyGroupAddresses
+            groupMemberCount, member, isOffline
         );
     }
 

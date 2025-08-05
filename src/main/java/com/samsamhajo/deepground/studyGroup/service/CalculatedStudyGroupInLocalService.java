@@ -7,7 +7,6 @@ import com.samsamhajo.deepground.studyGroup.dto.CalculatedStudyGroupInLocalRespo
 import com.samsamhajo.deepground.studyGroup.dto.CalculatedStudyGroupsInLocalResponse;
 import com.samsamhajo.deepground.studyGroup.dto.CalculatedStudyGroupsInLocalResultDto;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressRepository;
-import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,7 @@ public class CalculatedStudyGroupInLocalService {
     public CalculatedStudyGroupsInLocalResponse getStudyGroupsInLocal(String city, String gu) {
         // 주소의 아이디로 주소 목록을 분류하기
         Map<Long, AddressDto> addressDtoMap =
-                addressService.getDongsByCityAndGu(city, gu)
+                addressService.getDongsByCityAndGuUsingLike(city, gu)
                         .stream().collect(Collectors.toMap(AddressDto::getId, dto -> dto));
 
         // 주소 아이디 목록
@@ -39,7 +38,6 @@ public class CalculatedStudyGroupInLocalService {
         List<CalculatedStudyGroupInLocalResponse> calculatedStudyGroupInLocalResponses =
                 result.stream().map(r -> (
                         CalculatedStudyGroupInLocalResponse.of(
-                                r.getStudyGroupIds(),
                                 r.getCount(),
                                 addressDtoMap.get(r.getAddressId())
                         )
