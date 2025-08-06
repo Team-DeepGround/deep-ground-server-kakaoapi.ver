@@ -9,6 +9,7 @@ import com.samsamhajo.deepground.studyGroup.repository.StudyGroupAddressReposito
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class StudyGroupLocationService {
     private final StudyGroupRepository studyGroupRepository;
     private final StudyGroupAddressRepository studyGroupAddressRepository;
 
+    @Transactional(readOnly = true)
     public StudyGroupsByLocationResponse getStudyGroupsByLocation(String city, String gu, String dong) {
         validateLocation(city);
         validateLocation(gu);
