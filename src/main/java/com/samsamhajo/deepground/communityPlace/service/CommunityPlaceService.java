@@ -1,9 +1,7 @@
 package com.samsamhajo.deepground.communityPlace.service;
 
 
-import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlaceDto;
-import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
-import com.samsamhajo.deepground.communityPlace.dto.request.AddressDto;
+import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlace;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.SearchReviewSummaryDto;
@@ -22,9 +20,6 @@ import com.samsamhajo.deepground.member.repository.MemberRepository;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceErrorCode;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceException;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -103,23 +98,6 @@ public class CommunityPlaceService {
     private List<String> createCommunityPlaceMedia(CreateReviewDto createReviewDto, CommunityPlaceReview communityPlaceReview) {
         return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, createReviewDto.getImages());
     }
-
-    public ReviewStatistics selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
-
-        specificAddressRepository.findById(specificAddressId)
-                .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND));
-
-        Double avgScope = specificAddressRepository.avgScopeBySpecificAddressId(specificAddressId);
-        if (avgScope == null) {
-            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_COUNT_NOT_FOUND);
-        }
-        Long reviewCount = specificAddressRepository.countReviewBySpecificAddressId(specificAddressId);
-        if (reviewCount == null) {
-            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_AVG_SCOPE_NOT_FOUND);
-        }
-
-        return ReviewStatistics.of(avgScope,reviewCount);
-    }
   
     //TODO: 리뷰 작성 로직 구현 후 테스트 코드 작성 후 테스트 및 SWAGGER 통해 컨트롤러 테스트 진행 예정
     public ReviewListResponseDto SearchReviews(Long specificAddressId, Pageable pageable) {
@@ -139,27 +117,23 @@ public class CommunityPlaceService {
         return ReviewListResponseDto.of(reviews, reviewPage.getTotalPages());
     }
 
-    public List<SelectCommunityPlaceDto> selectCommunityPlaceByReviewCount() {
+    public List<SelectCommunityPlace> selectCommunityPlaceByReviewCount() {
 
-        List<SpecificAddress> selectCommunityPlaceByReviewCountDesc = specificAddressRepository.findAllCommunityPlaceByReviewCountDesc();
+        List<SelectCommunityPlace> selectCommunityPlaceByReviewCountDesc = specificAddressRepository.findAllCommunityPlaceByReviewCountDesc();
         if (selectCommunityPlaceByReviewCountDesc.isEmpty()) {
             throw new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND);
         }
 
-        return selectCommunityPlaceByReviewCountDesc.stream()
-                .map(SelectCommunityPlaceDto::of)
-                .toList();
+        return selectCommunityPlaceByReviewCountDesc;
     }
 
-    public List<SelectCommunityPlaceDto> selectCommunityPlaceByReviewScope() {
+    public List<SelectCommunityPlace> selectCommunityPlaceByReviewScope() {
 
-        List<SpecificAddress> selectCommunityPlaceByAvgScope = specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
+        List<SelectCommunityPlace> selectCommunityPlaceByAvgScope = specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
         if (selectCommunityPlaceByAvgScope.isEmpty()) {
             throw new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND);
         }
-        return selectCommunityPlaceByAvgScope.stream()
-                .map(SelectCommunityPlaceDto::of)
-                .toList();
+        return selectCommunityPlaceByAvgScope;
     }
 
     //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
