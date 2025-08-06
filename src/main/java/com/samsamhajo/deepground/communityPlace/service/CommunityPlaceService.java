@@ -199,7 +199,7 @@ public class CommunityPlaceService {
         CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(modifyReviewDto.getCommunityPlaceReviewId()).orElseThrow(
                 () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
 
-        communityPlaceReviewRepository.deleteAllByCommunityPlaceReviewId(communityPlaceReview.getId());
+        communityPlaceReviewRepository.deleteAllById(communityPlaceReview.getId());
         communityPlaceReview.updateReview(modifyReviewDto.getScope(), modifyReviewDto.getContent(), modifyReviewDto.getSpecificAddressId());
         List<String> mediaUrl = updateCommunityPlaceMedia(modifyReviewDto, communityPlaceReview);
 
