@@ -23,7 +23,10 @@ public class AdminService {
                 adminDashboardRepository.countTotalPosts(),
                 adminDashboardRepository.countTotalReviews(),
                 adminDashboardRepository.countReviewsToday(today),
-                adminDashboardRepository.countTotalStudyGroups()
+                adminDashboardRepository.countTotalStudyGroups(),
+                adminDashboardRepository.countTotalReports(),
+                adminDashboardRepository.countTodayReports(today),
+                adminDashboardRepository.countPendingReports()
         );
     }
 }

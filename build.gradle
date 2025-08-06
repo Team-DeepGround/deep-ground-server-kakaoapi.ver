@@ -21,6 +21,8 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://repo.spring.io/snapshot' }
+	maven { url 'https://central.sonatype.com/repository/maven-snapshots/' }
 }
 
 dependencies {
@@ -67,6 +69,9 @@ dependencies {
 	// S3 업로드 관련
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
+	// OpenAI
+	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M6")
+	implementation("org.springframework.ai:spring-ai-core:1.0.0-M6")
 
 }
 

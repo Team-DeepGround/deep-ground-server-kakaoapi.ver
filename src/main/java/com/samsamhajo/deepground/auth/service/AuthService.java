@@ -59,6 +59,10 @@ public class AuthService {
             throw new AuthException(AuthErrorCode.INVALID_PASSWORD);
         }
 
+        if (member.isBanned()) {
+            throw new AuthException(AuthErrorCode.BANNED_MEMBER); // ⚠️ 새로운 에러코드 필요
+        }
+
         String accessToken = jwtProvider.createAccessToken(member.getId());
         String refreshToken = jwtProvider.createRefreshToken(member.getId());
 

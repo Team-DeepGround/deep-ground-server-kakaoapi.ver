@@ -3,13 +3,15 @@ package com.samsamhajo.deepground.admin.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class AdminDashboardStatsResponse {
-    private Long totalMembers;
-    private Long newMembersToday;
-    private Long totalPosts;
-    private Long totalReviews;
-    private Long reviewsToday;
-    private Long totalStudyGroups;
-}
+public record AdminDashboardStatsResponse(
+        Long totalMembers,
+        Long newMembersToday,
+        Long totalPosts,
+        Long totalReviews,
+        Long reviewsToday,
+        Long totalStudyGroups,
+        Long totalReports,
+        Long todayReports,
+        Long pendingReports
+) {}
+
