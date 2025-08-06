@@ -45,4 +45,10 @@ public class CommunityPlaceReview extends BaseEntity {
         CommunityPlaceReview review = new CommunityPlaceReview(scope, content, specificAddressId ,member);
         return review;
     }
+
+    public void updateReview(double scope, String content, Long specificAddressId) {
+        this.scope = scope;
+        this.content = content;
+        this.specificAddressId = specificAddressId;
+    }
 }
