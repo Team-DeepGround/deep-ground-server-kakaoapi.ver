@@ -3,6 +3,7 @@ package com.samsamhajo.deepground.admin.controller;
 import com.samsamhajo.deepground.admin.service.AdminReportService;
 import com.samsamhajo.deepground.admin.success.AdminSuccessCode;
 import com.samsamhajo.deepground.global.success.SuccessResponse;
+import com.samsamhajo.deepground.report.dto.ReportDetailResponse;
 import com.samsamhajo.deepground.report.dto.ReportResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,23 @@ public class AdminReportController {
         return ResponseEntity.ok(SuccessResponse.of(AdminSuccessCode.GET_REPORT_SUCCESS, responses));
     }
 
+    @GetMapping("/{reportId}")
+    public ResponseEntity<SuccessResponse<ReportDetailResponse>> getReportDetail(@PathVariable Long reportId) {
+        ReportDetailResponse response = adminReportService.getReportDetail(reportId);
+        return ResponseEntity.ok(SuccessResponse.of(AdminSuccessCode.GET_REPORT_DETAIL_SUCCESS, response));
+    }
+
+    @PostMapping("/{reportId}/keep-feed")
+    public ResponseEntity<Void> keepFeed(@PathVariable Long reportId) {
+        adminReportService.keepReportedFeed(reportId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{reportId}/keep-member")
+    public ResponseEntity<Void> keepMember(@PathVariable Long reportId) {
+        adminReportService.keepReportedMember(reportId);
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping("/{reportId}/delete-feed")
     public ResponseEntity<Void> deleteFeed(@PathVariable Long reportId) {

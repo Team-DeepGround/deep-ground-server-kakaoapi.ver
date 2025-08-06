@@ -55,8 +55,12 @@ public class Report extends BaseEntity {
     @Column(name = "is_processed", nullable = false)
     private boolean isProcessed = false;
 
-    public void markAsProcessed() {
+    @Column(name = "action_taken")
+    private String actionTaken;
+
+    public void markAsProcessed(String actionTaken) {
         this.isProcessed = true;
+        this.actionTaken = actionTaken;
     }
 
     private Report(ReportTargetType targetType, Long targetId, ReportReason reason, String content,

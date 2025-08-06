@@ -15,7 +15,9 @@ public record ReportResponse(
         String content,
         boolean isAutoBanned,
         AIReviewResult aiReviewResult,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean processed,
+        String actionTaken
 ) {
     public static ReportResponse from(Report report) {
         return new ReportResponse(
@@ -26,7 +28,9 @@ public record ReportResponse(
                 report.getContent(),
                 report.isAutoBanned(),
                 report.getAiReviewResult(),
-                report.getCreatedAt()
+                report.getCreatedAt(),
+                report.isProcessed(),
+                report.getActionTaken()
         );
     }
 }
