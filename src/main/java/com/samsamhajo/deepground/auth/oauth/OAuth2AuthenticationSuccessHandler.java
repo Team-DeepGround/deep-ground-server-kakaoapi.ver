@@ -34,8 +34,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     ) throws IOException {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String accessToken = jwtProvider.createAccessToken(userDetails.getMember().getId());
-        String refreshToken = jwtProvider.createRefreshToken(userDetails.getMember().getId());
+        String accessToken = jwtProvider.createAccessToken(userDetails.getMember().getId(), userDetails.getMember().getRole().name());
+        String refreshToken = jwtProvider.createRefreshToken(userDetails.getMember().getId(), userDetails.getMember().getRole().name());
 
         refreshTokenRepository.save(userDetails.getMember().getId(), refreshToken, 1209600L);
 
