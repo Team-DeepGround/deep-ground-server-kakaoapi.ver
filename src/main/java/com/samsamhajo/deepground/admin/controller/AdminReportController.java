@@ -5,6 +5,7 @@ import com.samsamhajo.deepground.admin.success.AdminSuccessCode;
 import com.samsamhajo.deepground.global.success.SuccessResponse;
 import com.samsamhajo.deepground.report.dto.ReportResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,14 @@ public class AdminReportController {
     }
 
     @GetMapping
-    public ResponseEntity<SuccessResponse<List<ReportResponse>>> getAllReports() {
-        List<ReportResponse> responses = adminReportService.getAllReports();
+    public ResponseEntity<SuccessResponse<Page<ReportResponse>>> getAllReports(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ReportResponse> responses = adminReportService.getAllReports(page, size);
         return ResponseEntity.ok(SuccessResponse.of(AdminSuccessCode.GET_REPORT_SUCCESS, responses));
     }
+
 
     @PostMapping("/{reportId}/delete-feed")
     public ResponseEntity<Void> deleteFeed(@PathVariable Long reportId) {

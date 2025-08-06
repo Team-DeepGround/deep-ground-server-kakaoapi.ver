@@ -49,8 +49,15 @@ public class Report extends BaseEntity {
     private Member reportedMember;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ai_review_result")
+    @Column(name = "ai_review_result", nullable = false)
     private AIReviewResult aiReviewResult;
+
+    @Column(name = "is_processed", nullable = false)
+    private boolean isProcessed = false;
+
+    public void markAsProcessed() {
+        this.isProcessed = true;
+    }
 
     private Report(ReportTargetType targetType, Long targetId, ReportReason reason, String content,
                    boolean isAutoBanned, Member reporter, Member reportedMember, AIReviewResult aiReviewResult) {

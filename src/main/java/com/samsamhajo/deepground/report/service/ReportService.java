@@ -13,9 +13,9 @@ import com.samsamhajo.deepground.report.dto.ReportResponse;
 import com.samsamhajo.deepground.report.entity.Report;
 import com.samsamhajo.deepground.report.enums.AIReviewResult;
 import com.samsamhajo.deepground.report.enums.ReportTargetType;
+import com.samsamhajo.deepground.report.exception.ReportErrorCode;
+import com.samsamhajo.deepground.report.exception.ReportException;
 import com.samsamhajo.deepground.report.repository.ReportRepository;
-import com.samsamhajo.deepground.report.service.ReportPostAIClient;
-import com.samsamhajo.deepground.studyGroup.entity.StudyGroupMember;
 import com.samsamhajo.deepground.studyGroup.repository.StudyGroupMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +35,13 @@ public class ReportService {
     public ReportResponse createReport(ReportRequest request, Long reporterId) {
         Member reporter = memberRepository.findById(reporterId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        // 중복 신고 검증
+        boolean alreadyReported = reportRepository.existsByReporterIdAndTargetTypeAndTargetId(reporterId, request.targetType(), request.targetId());
+
+        if (alreadyReported) {
+            throw new ReportException(ReportErrorCode.DUPLICATE_REPORT);
+        }
 
         Long targetId = request.targetId();
         ReportTargetType targetType = request.targetType();
@@ -60,12 +67,13 @@ public class ReportService {
 
         if (targetType == ReportTargetType.MEMBER) {
             // 스터디 그룹 내 멤버인지 검증
-            boolean isStudyGroupMember = studyGroupMemberRepository.existsById(targetId);
-            if (!isStudyGroupMember) {
-                throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
-            }
             reportedMember = memberRepository.findById(targetId)
                     .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+            boolean isStudyGroupMember = studyGroupMemberRepository.existsById(targetId);
+            if (!isStudyGroupMember) {
+                throw new MemberException(MemberErrorCode.MEMBER_NOT_IN_STUDY_GROUP);
+            }
         }
 
         Report report = Report.of(

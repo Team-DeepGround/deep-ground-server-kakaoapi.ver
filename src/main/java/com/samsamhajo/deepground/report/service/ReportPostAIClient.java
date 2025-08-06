@@ -35,23 +35,28 @@ public class ReportPostAIClient {
                 "reportContent", reportContent,
                 "feedContent", feedContent
         );
-
-        var result = reportPostClient.prompt()
-                .system(system)
-                .user(p -> p.text("""
+        try {
+            var result = reportPostClient.prompt()
+                    .system(system)
+                    .user(p -> p.text("""
                         다음은 사용자가 신고한 게시글 내용과 사유입니다.
-                        
+
                         - 신고 사유: {reportReason}
                         - 신고 상세 내용: {reportContent}
                         - 게시글 본문: {feedContent}
-                        
+
                         이 신고가 실제로 제재가 필요한지 판단하고, 이유와 신뢰도를 함께 알려주세요.
                         """).params(promptVars))
-                .call()
-                .entity(AIReportResponse.class);
+                    .call()
+                    .entity(AIReportResponse.class);
 
-        log.info("AI 판단 결과: {}, 이유: [{}], 신뢰도: {}", result.getResult(), result.getReason(), result.getConfidence());
-        result.setResultByConfidence();
-        return result;
+            result.setResultByConfidence();
+            log.info("AI 판단 결과: {}, 이유: [{}], 신뢰도: {}", result.getResult(), result.getReason(), result.getConfidence());
+            return result;
+
+        } catch (Exception e) {
+            log.error("AI 리뷰 중 오류 발생: reportReason={}, error={}", reportReason, e.getMessage(), e);
+            return AIReportResponse.createPendingResponse();
+        }
     }
 }

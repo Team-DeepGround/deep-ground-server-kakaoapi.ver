@@ -19,6 +19,10 @@ import com.samsamhajo.deepground.report.exception.ReportException;
 import com.samsamhajo.deepground.report.repository.ReportRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,11 +37,12 @@ public class AdminReportService {
     private final MemberRepository memberRepository;
 
     // 전체 신고 목록 조회
-    public List<ReportResponse> getAllReports() {
-        return reportRepository.findAll().stream()
-                .map(ReportResponse::from)
-                .toList();
+    public Page<ReportResponse> getAllReports(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return reportRepository.findAll(pageable)
+                .map(ReportResponse::from);
     }
+
 
     /**
      * 관리자 판단이 필요한 신고 목록 조회
@@ -67,6 +72,8 @@ public class AdminReportService {
                 .orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
 
         feedRepository.delete(feed);
+
+        report.markAsProcessed();
     }
 
 
@@ -88,5 +95,7 @@ public class AdminReportService {
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         member.applyBanUntil(LocalDateTime.now().plusDays(days));
+
+        report.markAsProcessed();
     }
 }

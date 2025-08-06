@@ -11,5 +11,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     long countByCreatedAtAfter(LocalDateTime date);
 
     long countByAiReviewResultOrTargetType(AIReviewResult aiReviewResult, ReportTargetType targetType);
+
+    boolean existsByReporterIdAndTargetTypeAndTargetId(Long reporterId, ReportTargetType targetType, Long targetId);
 }
 

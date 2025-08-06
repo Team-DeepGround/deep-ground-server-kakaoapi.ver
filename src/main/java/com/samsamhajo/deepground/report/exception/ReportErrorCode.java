@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 public enum ReportErrorCode implements ErrorCode {
 
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND,"신고를 찾을 수 없습니다."),
-    INVALID_TYPE(HttpStatus.BAD_REQUEST, "올바른 타입이 아닙니다.");
+    INVALID_TYPE(HttpStatus.BAD_REQUEST, "올바른 타입이 아닙니다."),
+    DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고된 상태입니다.");
 
     private final HttpStatus status;
     private final String message;
