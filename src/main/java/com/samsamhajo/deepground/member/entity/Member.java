@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +59,9 @@ public class Member extends BaseEntity {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private MemberProfile memberProfile;
+
+    @Column(name = "ban_until")
+    private LocalDateTime banUntil;
 
     private Member(String email, String password, String nickname, Role role) {
         this.email = email;
@@ -110,6 +114,16 @@ public class Member extends BaseEntity {
     // 프로필 등록
     public void linkProfile(MemberProfile profile) {
         this.memberProfile = profile;
+    }
+
+    // 정지 처리 메서드
+    public void applyBanUntil(LocalDateTime banUntil) {
+        this.banUntil = banUntil;
+    }
+
+    // 현재 정지 상태 확인
+    public boolean isBanned() {
+        return this.banUntil != null && this.banUntil.isAfter(LocalDateTime.now());
     }
 }
 
