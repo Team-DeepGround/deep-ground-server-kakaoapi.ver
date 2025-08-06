@@ -50,11 +50,8 @@ public class AdminReportService {
      * - 신고 대상이 MEMBER 인 경우
      */
     public List<ReportResponse> getReportsNeedingAdminReview() {
-        return reportRepository.findAll().stream()
-                .filter(report ->
-                        report.getTargetType() == ReportTargetType.MEMBER ||
-                                report.getAiReviewResult() == AIReviewResult.PENDING
-                )
+        return reportRepository.findReportsNeedingAdminReview(ReportTargetType.MEMBER, AIReviewResult.PENDING)
+                .stream()
                 .map(ReportResponse::from)
                 .toList();
     }
