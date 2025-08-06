@@ -167,8 +167,12 @@ public class CommunityPlaceService {
     }
 
     //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
-    public ReviewDetailDto SearchReviewDetail(Long reviewId, Long memberId) {
-        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(reviewId).orElseThrow(
+    public ReviewDetailDto SearchReviewDetail(Long communityPlaceReviewId, Long memberId) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new MemberException(MemberErrorCode.INVALID_MEMBER_ID));
+
+        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(communityPlaceReviewId).orElseThrow(
                 () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
 
         List<CommunityPlaceMedia> communityPlaceMedia = communityPlaceMediaRepository.findAllByCommunityPlaceReviewId(communityPlaceReview.getId());
@@ -187,11 +191,12 @@ public class CommunityPlaceService {
         );
     }
 
-    public ModifyReviewResponseDto modifyCommunityPlaceReview(ModifyReviewDto modifyReviewDto, Long memberId) {
+    //TODO : 후에 프론트 연동 후 시간 남으면 TEST코드 제대로 작성 예정 그전에는 swagger로 테스트 예정
+    public ModifyReviewResponseDto modifyCommunityPlaceReview(ModifyReviewDto modifyReviewDto, Long specificAddressId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new MemberException(MemberErrorCode.INVALID_MEMBER_ID));
 
-        CommunityPlaceReview communityPlaceReview =  communityPlaceReviewRepository.findById(modifyReviewDto.getCommunityPlaceReviewId()).orElseThrow(
+        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(modifyReviewDto.getCommunityPlaceReviewId()).orElseThrow(
                 () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
 
         communityPlaceReviewRepository.deleteAllByCommunityPlaceReviewId(communityPlaceReview.getId());

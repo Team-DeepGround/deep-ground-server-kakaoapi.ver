@@ -5,7 +5,9 @@ import com.samsamhajo.deepground.auth.security.CustomUserDetails;
 import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlaceDto;
 import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.ModifyReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
+import com.samsamhajo.deepground.communityPlace.dto.response.ModifyReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceSuccessCode;
@@ -96,6 +98,19 @@ public class CommunityPlaceController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITY_PLACE_SUCCESS_REVIEW_DETAIL, reviewDetailDto));
+    }
+
+    @PutMapping(value = "modify/{specificAddressId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SuccessResponse> modifyReview(
+            ModifyReviewDto modifyReviewDto,
+            @PathVariable Long specificAddressId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        ModifyReviewResponseDto modifyReviewResponseDto = communityPlaceService.modifyCommunityPlaceReview(modifyReviewDto, specificAddressId, customUserDetails.getMember().getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITY_PLACE_SUCCESS_REVIEW_MODIFIED, modifyReviewResponseDto));
     }
 }
 
