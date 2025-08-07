@@ -36,7 +36,7 @@ public record ReportDetailResponse(
         Member reported = report.getReportedMember();
 
         return ReportDetailResponse.builder()
-                .id(reporter.getId())
+                .id(report.getId())
                 .targetType(report.getTargetType())
                 .reason(report.getReason())
                 .content(report.getContent())
