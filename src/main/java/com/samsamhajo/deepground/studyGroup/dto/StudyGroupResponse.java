@@ -1,9 +1,12 @@
 package com.samsamhajo.deepground.studyGroup.dto;
 
 import com.samsamhajo.deepground.address.dto.AddressDto;
+import com.samsamhajo.deepground.address.entity.Address;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.studyGroup.entity.*;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,10 +48,13 @@ public class StudyGroupResponse {
             .map(techStack -> new TechTagDto(techStack.getId(), techStack.getName()))
             .collect(Collectors.toSet());
 
-    Set<AddressDto> addresses = group.getStudyGroupAddresses().stream()
-            .map(StudyGroupAddress::getAddress)
-            .map(AddressDto::from)
-            .collect(Collectors.toSet());
+    Set<AddressDto> addresses = new LinkedHashSet<>(
+            group.getStudyGroupAddresses().stream()
+                    .map(StudyGroupAddress::getAddress)
+                    .sorted(Comparator.comparing(Address::getId))
+                    .map(AddressDto::from)
+                    .toList()
+    );
 
     return StudyGroupResponse.builder()
             .id(group.getId())
