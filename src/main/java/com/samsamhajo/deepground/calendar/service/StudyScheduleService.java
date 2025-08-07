@@ -59,7 +59,7 @@ public class StudyScheduleService {
                                 new Coordinate(placeDto.getLongitude(), placeDto.getLatitude()));
                         SpecificAddress newAddress = SpecificAddress.of(
                                 placeDto.getAddress(), point,
-                                placeDto.getName(), placeDto.getPhone(), placeDto.getPlaceUrl());
+                                placeDto.getName(), placeDto.getPhone(), placeDto.getPlaceId());
                         return specificAddressRepository.save(newAddress);
                     });
 
@@ -150,7 +150,7 @@ public class StudyScheduleService {
                                 new Coordinate(placeDto.getLongitude(), placeDto.getLatitude()));
                         return specificAddressRepository.save(
                                 SpecificAddress.of(placeDto.getAddress(), point,
-                                        placeDto.getName(), placeDto.getPhone(), placeDto.getPlaceUrl()));
+                                        placeDto.getName(), placeDto.getPhone(), placeDto.getPlaceId()));
                     });
         }
 
