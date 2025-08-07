@@ -9,6 +9,7 @@ import com.samsamhajo.deepground.auth.exception.AuthException;
 import com.samsamhajo.deepground.auth.jwt.JwtProvider;
 import com.samsamhajo.deepground.auth.repository.RefreshTokenRepository;
 import com.samsamhajo.deepground.member.entity.Member;
+import com.samsamhajo.deepground.member.entity.Role;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ public class RefreshAccessTokenTest {
     @Test
     void 액세스토큰_재발급_성공() {
         // given
-        String refreshToken = jwtProvider.createRefreshToken(member.getId());
+        String refreshToken = jwtProvider.createRefreshToken(member.getId(), member.getRole().name());
         refreshTokenRepository.save(member.getId(), refreshToken, 3600L);
         TokenRefreshRequest request = new TokenRefreshRequest(refreshToken);
 
@@ -89,7 +90,7 @@ public class RefreshAccessTokenTest {
     void 리프레시토큰_만료임박_시_모든토큰_재발급() {
         // given
         long shortExpirationSeconds = 3L; // 3초짜리 만료시간
-        String oldRefreshToken = jwtProvider.createTestRefreshToken(member.getId(), shortExpirationSeconds);
+        String oldRefreshToken = jwtProvider.createTestRefreshToken(member.getId() ,shortExpirationSeconds);
         refreshTokenRepository.save(member.getId(), oldRefreshToken, shortExpirationSeconds);
 
         TokenRefreshRequest request = new TokenRefreshRequest(oldRefreshToken);
@@ -110,7 +111,7 @@ public class RefreshAccessTokenTest {
     @Test
     void 리프레시토큰_유효기간_충분_시_액세스토큰만_재발급() {
         // given
-        String refreshToken = jwtProvider.createRefreshToken(member.getId());
+        String refreshToken = jwtProvider.createRefreshToken(member.getId(), member.getRole().name());
         refreshTokenRepository.save(member.getId(), refreshToken, 604800L); // 7일
         TokenRefreshRequest request = new TokenRefreshRequest(refreshToken);
 
@@ -129,7 +130,7 @@ public class RefreshAccessTokenTest {
     @Test
     void 저장되지_않은_리프레시토큰으로_재발급_실패() {
         // given
-        String refreshToken = jwtProvider.createRefreshToken(member.getId());
+        String refreshToken = jwtProvider.createRefreshToken(member.getId(), member.getRole().name());
         TokenRefreshRequest request = new TokenRefreshRequest(refreshToken);
 
         // when & then
@@ -152,7 +153,7 @@ public class RefreshAccessTokenTest {
     @Test
     void 다른_리프레시토큰_값으로_재발급_실패() {
         // given
-        String savedRefreshToken = jwtProvider.createRefreshToken(member.getId());
+        String savedRefreshToken = jwtProvider.createRefreshToken(member.getId(), member.getRole().name());
         refreshTokenRepository.save(member.getId(), savedRefreshToken, 3600L);
 
         Member member2 = Member.createLocalMember(
@@ -164,7 +165,7 @@ public class RefreshAccessTokenTest {
         member2.verify();
         memberRepository.save(member2);
 
-        String differentRefreshToken = jwtProvider.createRefreshToken(member2.getId());
+        String differentRefreshToken = jwtProvider.createRefreshToken(member2.getId(), member2.getRole().name());
         TokenRefreshRequest request = new TokenRefreshRequest(differentRefreshToken);
 
         // when & then

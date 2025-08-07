@@ -6,10 +6,12 @@ import com.samsamhajo.deepground.feed.feed.entity.Feed;
 import com.samsamhajo.deepground.feed.feed.exception.FeedErrorCode;
 import com.samsamhajo.deepground.feed.feed.exception.FeedException;
 import com.samsamhajo.deepground.feed.feed.repository.FeedRepository;
+import com.samsamhajo.deepground.feed.feed.service.FeedService;
 import com.samsamhajo.deepground.member.entity.Member;
 import com.samsamhajo.deepground.member.exception.MemberErrorCode;
 import com.samsamhajo.deepground.member.exception.MemberException;
 import com.samsamhajo.deepground.member.repository.MemberRepository;
+import com.samsamhajo.deepground.report.dto.ReportDetailResponse;
 import com.samsamhajo.deepground.report.dto.ReportResponse;
 import com.samsamhajo.deepground.report.entity.Report;
 import com.samsamhajo.deepground.report.enums.AIReviewResult;
@@ -35,6 +37,7 @@ public class AdminReportService {
     private final ReportRepository reportRepository;
     private final FeedRepository feedRepository;
     private final MemberRepository memberRepository;
+    private final FeedService feedService;
 
     // 전체 신고 목록 조회
     public Page<ReportResponse> getAllReports(int page, int size) {
@@ -57,6 +60,21 @@ public class AdminReportService {
     }
 
     @Transactional
+    public ReportDetailResponse getReportDetail(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        String feedContent = null;
+        if (report.getTargetType() == ReportTargetType.FEED) {
+            Feed feed = feedRepository.findById(report.getTargetId())
+                    .orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+            feedContent = feed.getContent();
+        }
+
+        return ReportDetailResponse.from(report, feedContent);
+    }
+
+    @Transactional
     public void deleteReportedFeed(Long reportId) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
@@ -68,9 +86,8 @@ public class AdminReportService {
         Feed feed = feedRepository.findById(report.getTargetId())
                 .orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
 
-        feedRepository.delete(feed);
-
-        report.markAsProcessed();
+        feedService.deleteFeed(report.getTargetId());
+        report.markAsProcessed("피드 삭제");
     }
 
 
@@ -93,6 +110,30 @@ public class AdminReportService {
 
         member.applyBanUntil(LocalDateTime.now().plusDays(days));
 
-        report.markAsProcessed();
+        report.markAsProcessed("회원 정지 " + days + "일");
+    }
+
+    @Transactional
+    public void keepReportedFeed(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        if (report.getTargetType() != ReportTargetType.FEED) {
+            throw new ReportException(ReportErrorCode.INVALID_TYPE);
+        }
+
+        report.markAsProcessed("피드 유지");
+    }
+
+    @Transactional
+    public void keepReportedMember(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        if (report.getTargetType() != ReportTargetType.MEMBER) {
+            throw new ReportException(ReportErrorCode.INVALID_TYPE);
+        }
+
+        report.markAsProcessed("회원 유지");
     }
 }

@@ -60,11 +60,11 @@ public class AuthService {
         }
 
         if (member.isBanned()) {
-            throw new AuthException(AuthErrorCode.BANNED_MEMBER); // ⚠️ 새로운 에러코드 필요
+            throw new AuthException(AuthErrorCode.BANNED_MEMBER);
         }
 
-        String accessToken = jwtProvider.createAccessToken(member.getId());
-        String refreshToken = jwtProvider.createRefreshToken(member.getId());
+        String accessToken = jwtProvider.createAccessToken(member.getId(), member.getRole().name());
+        String refreshToken = jwtProvider.createRefreshToken(member.getId(), member.getRole().name());
 
         refreshTokenRepository.save(
                 member.getId(),
@@ -120,18 +120,19 @@ public class AuthService {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
         Long memberId = jwtProvider.getMemberId(request.getRefreshToken());
+        String role = jwtProvider.getRole(request.getRefreshToken());
 
         String savedRefreshToken = refreshTokenRepository.findByMemberId(memberId);
         if (savedRefreshToken == null || !savedRefreshToken.equals(request.getRefreshToken())) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        String newAccessToken = jwtProvider.createAccessToken(memberId);
+        String newAccessToken = jwtProvider.createAccessToken(memberId, role);
         String currentRefreshToken = request.getRefreshToken();
 
         long remainingTime = jwtProvider.getRemainingTime(currentRefreshToken);
         if (remainingTime <= REISSUE_REFRESH_TOKEN_TIME) {
-            String newRefreshToken = jwtProvider.createRefreshToken(memberId);
+            String newRefreshToken = jwtProvider.createRefreshToken(memberId, role);
             // 새로운 리프레시 토큰을 redis에 저장
             refreshTokenRepository.save(memberId, newRefreshToken, refreshTokenValidityInSeconds);
 

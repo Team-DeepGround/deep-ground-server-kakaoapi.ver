@@ -2,6 +2,7 @@ package com.samsamhajo.deepground.auth.jwt;
 
 import com.samsamhajo.deepground.auth.exception.AuthErrorCode;
 import com.samsamhajo.deepground.auth.exception.AuthException;
+import com.samsamhajo.deepground.member.entity.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,20 +31,21 @@ public class JwtProvider {
         this.refreshTokenValidityInMillis = refreshTokenValidityInSeconds * 1000;
     }
 
-    public String createAccessToken(Long memberId) {
-        return createToken(memberId, accessTokenValidityInMillis);
+    public String createAccessToken(Long memberId, String role) {
+        return createToken(memberId, role, accessTokenValidityInMillis);
     }
 
-    public String createRefreshToken(Long memberId) {
-        return createToken(memberId, refreshTokenValidityInMillis);
+    public String createRefreshToken(Long memberId, String role) {
+        return createToken(memberId, role, refreshTokenValidityInMillis);
     }
 
-    private String createToken(Long memberId, long validityInMillis) {
+    private String createToken(Long memberId, String role, long validityInMillis) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + validityInMillis);
 
         return Jwts.builder()
                 .claim("memberId", memberId)
+                .claim("role", role) // 예: ROLE_ADMIN
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
@@ -58,6 +60,21 @@ public class JwtProvider {
                     .parseSignedClaims(token)
                     .getPayload();
             return claims.get("memberId", Long.class);
+        } catch (ExpiredJwtException e) {
+            throw new AuthException(AuthErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException e) {
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+        }
+    }
+
+    public String getRole(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.get("role", String.class);
         } catch (ExpiredJwtException e) {
             throw new AuthException(AuthErrorCode.EXPIRED_TOKEN);
         } catch (JwtException e) {
@@ -89,6 +106,6 @@ public class JwtProvider {
     }
 
     public String createTestRefreshToken(Long memberId, long customValidityInSeconds) {
-        return createToken(memberId, customValidityInSeconds * 1000);
+        return createToken(memberId, Role.ROLE_USER.name() ,customValidityInSeconds * 1000);
     }
 }

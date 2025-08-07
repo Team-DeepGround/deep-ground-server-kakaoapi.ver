@@ -2,6 +2,7 @@ package com.samsamhajo.deepground.auth.jwt;
 
 import com.samsamhajo.deepground.auth.exception.AuthErrorCode;
 import com.samsamhajo.deepground.auth.exception.AuthException;
+import com.samsamhajo.deepground.member.entity.Role;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,9 +37,10 @@ public class JwtProviderTest {
     void accessToken_발급_및_검증_성공() {
         // given
         Long memberId = 123L;
+        String role = Role.ROLE_USER.name();
 
         // when
-        String accessToken = jwtProvider.createAccessToken(memberId);
+        String accessToken = jwtProvider.createAccessToken(memberId, role);
 
         // then
         assertNotNull(accessToken);
@@ -50,9 +52,10 @@ public class JwtProviderTest {
     void refreshToken_발급_및_검증_성공() {
         // given
         Long memberId = 456L;
+        String role = Role.ROLE_USER.name();
 
         // when
-        String refreshToken = jwtProvider.createRefreshToken(memberId);
+        String refreshToken = jwtProvider.createRefreshToken(memberId, role);
 
         // then
         assertNotNull(refreshToken);
@@ -78,7 +81,7 @@ public class JwtProviderTest {
         // given
         // 만료 시간이 1초인 토큰 발급
         JwtProvider shortLivedProvider = new JwtProvider(secret, 1, 1);
-        String token = shortLivedProvider.createAccessToken(789L);
+        String token = shortLivedProvider.createAccessToken(789L, Role.ROLE_GUEST.name());
 
         // 2초 대기하여 토큰 만료 유도
         Thread.sleep(2000);
