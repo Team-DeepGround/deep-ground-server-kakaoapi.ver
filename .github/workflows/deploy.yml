@@ -81,6 +81,8 @@ jobs:
             chmod 600 .env # .env 
 
             chmod +x deploy.sh
-            ./deploy.sh
+             DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} ./deploy.sh
+            
+            rm .env
 
           
