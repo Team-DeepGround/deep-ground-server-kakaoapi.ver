@@ -1,10 +1,11 @@
 package com.samsamhajo.deepground.communityPlace.service;
 
 
-import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlaceDto;
-import com.samsamhajo.deepground.communityPlace.dto.ReviewStatistics;
-import com.samsamhajo.deepground.communityPlace.dto.request.*;
-import com.samsamhajo.deepground.communityPlace.dto.response.ModifyReviewResponseDto;
+
+import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlace;
+import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.SearchReviewSummaryDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.entity.CommunityPlaceMedia;
@@ -139,27 +140,23 @@ public class CommunityPlaceService {
         return ReviewListResponseDto.of(reviews, reviewPage.getTotalPages());
     }
 
-    public List<SelectCommunityPlaceDto> selectCommunityPlaceByReviewCount() {
+    public List<SelectCommunityPlace> selectCommunityPlaceByReviewCount() {
 
-        List<SpecificAddress> selectCommunityPlaceByReviewCountDesc = specificAddressRepository.findAllCommunityPlaceByReviewCountDesc();
+        List<SelectCommunityPlace> selectCommunityPlaceByReviewCountDesc = specificAddressRepository.findAllCommunityPlaceByReviewCountDesc();
         if (selectCommunityPlaceByReviewCountDesc.isEmpty()) {
             throw new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND);
         }
 
-        return selectCommunityPlaceByReviewCountDesc.stream()
-                .map(SelectCommunityPlaceDto::of)
-                .toList();
+        return selectCommunityPlaceByReviewCountDesc;
     }
 
-    public List<SelectCommunityPlaceDto> selectCommunityPlaceByReviewScope() {
+    public List<SelectCommunityPlace> selectCommunityPlaceByReviewScope() {
 
-        List<SpecificAddress> selectCommunityPlaceByAvgScope = specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
+        List<SelectCommunityPlace> selectCommunityPlaceByAvgScope = specificAddressRepository.findAllCommunityPlaceByReviewScopeDesc();
         if (selectCommunityPlaceByAvgScope.isEmpty()) {
             throw new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND);
         }
-        return selectCommunityPlaceByAvgScope.stream()
-                .map(SelectCommunityPlaceDto::of)
-                .toList();
+        return selectCommunityPlaceByAvgScope;
     }
 
     //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
