@@ -74,6 +74,15 @@ spring:
           auth: true
           starttls:
             enable: true
+    ai:
+      openai:
+        api-key: ${spring.ai.openai.api-key}  # 환경변수 혹은 yml에 직접 입력
+        base-url: https://api.openai.com/v1
+        chat:
+          model: gpt-3.5-turbo
+        embedding:
+          model: text-embedding-3-small
+
   security:
     oauth2:
       client:

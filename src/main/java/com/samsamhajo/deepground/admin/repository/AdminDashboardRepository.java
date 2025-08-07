@@ -14,4 +14,7 @@ public interface AdminDashboardRepository {
     Long countTotalReviews();
     Long countReviewsToday(LocalDateTime today);
     Long countTotalStudyGroups();
+    Long countTotalReports();
+    Long countTodayReports(LocalDateTime today);
+    Long countPendingReports();
 }

@@ -1,6 +1,7 @@
 package com.samsamhajo.deepground.communityPlace.service;
 
 
+
 import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlace;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
@@ -25,13 +26,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class CommunityPlaceService {
 
     private final CommunityPlaceReviewRepository communityPlaceReviewRepository;
@@ -98,6 +100,27 @@ public class CommunityPlaceService {
     private List<String> createCommunityPlaceMedia(CreateReviewDto createReviewDto, CommunityPlaceReview communityPlaceReview) {
         return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, createReviewDto.getImages());
     }
+
+    private List<String> updateCommunityPlaceMedia(ModifyReviewDto modifyReviewDto, CommunityPlaceReview communityPlaceReview) {
+        return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, modifyReviewDto.getImages());
+    }
+
+    public ReviewStatistics selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
+
+        specificAddressRepository.findById(specificAddressId)
+                .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND));
+
+        Double avgScope = specificAddressRepository.avgScopeBySpecificAddressId(specificAddressId);
+        if (avgScope == null) {
+            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_COUNT_NOT_FOUND);
+        }
+        Long reviewCount = specificAddressRepository.countReviewBySpecificAddressId(specificAddressId);
+        if (reviewCount == null) {
+            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_AVG_SCOPE_NOT_FOUND);
+        }
+
+        return ReviewStatistics.of(avgScope,reviewCount);
+    }
   
     //TODO: 리뷰 작성 로직 구현 후 테스트 코드 작성 후 테스트 및 SWAGGER 통해 컨트롤러 테스트 진행 예정
     public ReviewListResponseDto SearchReviews(Long specificAddressId, Pageable pageable) {
@@ -137,16 +160,18 @@ public class CommunityPlaceService {
     }
 
     //TODO : 후에 가게정보 저장 로직 완성되면, 테스트 예정
-    public ReviewDetailDto SearchReviewDetail(Long reviewId, Long memberId) {
-        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(reviewId).orElseThrow(
+    public ReviewDetailDto SearchReviewDetail(Long communityPlaceReviewId, Long memberId) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new MemberException(MemberErrorCode.INVALID_MEMBER_ID));
+
+        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(communityPlaceReviewId).orElseThrow(
                 () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
 
         List<CommunityPlaceMedia> communityPlaceMedia = communityPlaceMediaRepository.findAllByCommunityPlaceReviewId(communityPlaceReview.getId());
-
         List<String> mediaUrl = communityPlaceMedia.stream()
                 .map(CommunityPlaceMedia :: getMediaUrl)
                 .collect(Collectors.toList());
-
         return ReviewDetailDto.of(
                 communityPlaceReview.getId(),
                 communityPlaceReview.getContent(),
@@ -155,6 +180,51 @@ public class CommunityPlaceService {
                 communityPlaceReview.getMember().getId(),
                 mediaUrl
         );
+    }
+
+    //TODO : 후에 프론트 연동 후 시간 남으면 TEST코드 제대로 작성 예정 그전에는 swagger로 테스트 예정
+    public ModifyReviewResponseDto modifyCommunityPlaceReview(ModifyReviewDto modifyReviewDto, Long specificAddressId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new MemberException(MemberErrorCode.INVALID_MEMBER_ID));
+
+        CommunityPlaceReview communityPlaceReview = communityPlaceReviewRepository.findById(modifyReviewDto.getCommunityPlaceReviewId()).orElseThrow(
+                () -> new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_NOT_FOUND));
+
+        communityPlaceReview.updateReview(modifyReviewDto.getScope(), modifyReviewDto.getContent(), modifyReviewDto.getSpecificAddressId());
+        communityPlaceMediaService.deleteCommunityPlaceMedia(communityPlaceReview.getId());
+        List<String> mediaUrl = updateCommunityPlaceMedia(modifyReviewDto, communityPlaceReview);
+
+        return ModifyReviewResponseDto.of(
+                communityPlaceReview.getId(),
+                memberId,
+                modifyReviewDto.getScope(),
+                modifyReviewDto.getContent(),
+                modifyReviewDto.getSpecificAddressId(),
+                mediaUrl
+        );
+    }
+
+    public SummaryDto getMyReviewSummary(Long scheduleId, Long memberId) {
+        Object result = communityPlaceReviewRepository.findMyReviewSummaryByScheduleIdAndMemberId(scheduleId, memberId);
+
+        if (result == null) {
+            // 리뷰가 없다는 뜻 (작성 가능)
+            return null;
+        }
+
+        Object[] row = (Object[]) result;
+        Long communityPlaceReviewId = ((Long) row[0]).longValue();
+        double scope = (double) row[1];
+        String content = (String) row[2];
+        Long specificAddressId = ((Long) row[3]).longValue();
+        String mediaUrlConcat = (String) row[4];
+        List<String> mediaUrl = (mediaUrlConcat != null && !mediaUrlConcat.isEmpty())
+                ? Arrays.asList(mediaUrlConcat.split(","))
+                : List.of();
+
+        return new SummaryDto(communityPlaceReviewId, scope, content, specificAddressId, mediaUrl);
+
+
     }
 }
 

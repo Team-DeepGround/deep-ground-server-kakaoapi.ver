@@ -4,7 +4,10 @@ package com.samsamhajo.deepground.communityPlace.controller;
 import com.samsamhajo.deepground.auth.security.CustomUserDetails;
 import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlace;
 import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.ModifyReviewDto;
 import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.SummaryDto;
+import com.samsamhajo.deepground.communityPlace.dto.response.ModifyReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.exception.CommunityPlaceSuccessCode;
@@ -26,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static org.springframework.data.redis.connection.ReactiveStreamCommands.AddStreamRecord.body;
 
 @RestController
 @RequestMapping("/communityPlace")
@@ -87,6 +92,30 @@ public class CommunityPlaceController {
                 .status(HttpStatus.OK)
                 .body(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITY_PLACE_SUCCESS_REVIEW_DETAIL, reviewDetailDto));
     }
+
+    @PutMapping(value = "/modify/{specificAddressId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SuccessResponse> modifyReview(
+            ModifyReviewDto modifyReviewDto,
+            @PathVariable Long specificAddressId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        ModifyReviewResponseDto modifyReviewResponseDto = communityPlaceService.modifyCommunityPlaceReview(modifyReviewDto, specificAddressId, customUserDetails.getMember().getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITY_PLACE_SUCCESS_REVIEW_MODIFIED, modifyReviewResponseDto));
+    }
+
+    @GetMapping("/review/my")
+    public ResponseEntity<SummaryDto> getMyReview(@RequestParam Long scheduleId,
+                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        SummaryDto dto = communityPlaceService.getMyReviewSummary(scheduleId, customUserDetails.getMember().getId());
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(dto);
+    }
+
 }
 
 
