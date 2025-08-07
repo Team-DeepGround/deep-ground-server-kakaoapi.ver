@@ -83,7 +83,7 @@ class StudyScheduleServiceTest {
                         .name("카페")
                         .address("서울 강남구")
                         .phone("010-0000-0000")
-                        .placeUrl("http://place.kakao.com")
+                        .placeId("123")
                         .latitude(37.0)
                         .longitude(127.0)
                         .build())
@@ -336,11 +336,13 @@ class StudyScheduleServiceTest {
     void updateStudySchedule_Fail_EndTimeBeforeStartTime() throws IllegalAccessException, NoSuchFieldException {
         // given
         LocalDateTime startTime = LocalDateTime.of(2025, 5, 21, 13, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 5, 21, 11, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 5, 21, 11, 0); // 종료 시간이 더 빠름
 
+        // 장소 정보 생략 (테스트 목적에 불필요하므로)
         StudyScheduleRequestDto request = requestDto.toBuilder()
                 .startTime(startTime)
                 .endTime(endTime)
+                .place(null) // ✅ null 처리하여 SpecificAddress 생성 로직 건너뜀
                 .build();
 
         Member leader = mock(Member.class);
@@ -367,13 +369,14 @@ class StudyScheduleServiceTest {
         when(studyScheduleRepository.findById(anyLong())).thenReturn(Optional.of(schedule));
         when(studyScheduleRepository.existsByStudyGroupIdAndEndTimeGreaterThanAndStartTimeLessThan(
                 anyLong(), any(), any()
-        )).thenReturn(false);
+        )).thenReturn(false); // 중복 일정 없음
 
         // when & then
         assertThatThrownBy(() -> studyScheduleService.updateStudySchedule(1L, userId, 1L, request))
                 .isInstanceOf(ScheduleException.class)
                 .hasMessageContaining(ScheduleErrorCode.INVALID_DATE_RANGE.getMessage());
     }
+
 
     @Test
     @DisplayName("스터디 일정 수정 실패 - 중복된 시간대의 일정이 존재할 경우")

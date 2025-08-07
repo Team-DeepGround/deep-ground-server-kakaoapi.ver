@@ -53,6 +53,9 @@ public class SpecificAddress extends BaseEntity {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "place_id")
+    private String placeId;
+
     @OneToMany(mappedBy = "specificAddress", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudySchedule> studySchedules = new ArrayList<>();
 
@@ -63,7 +66,7 @@ public class SpecificAddress extends BaseEntity {
 
     private SpecificAddress(String location,Point locationPoint,
                             String name, String phone, String placeUrl,
-                            Double latitude, Double longitude){
+                            Double latitude, Double longitude, String placeId){
         this.location = location;
         this.locationPoint = locationPoint;
         this.name = name;
@@ -71,10 +74,12 @@ public class SpecificAddress extends BaseEntity {
         this.placeUrl = placeUrl;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.placeId = placeId;
     }
 
     public static SpecificAddress of(String location, Point locationPoint,
-                                     String name, String phone, String placeUrl) {
+                                     String name, String phone, String placeId) {
+        String placeUrl = "https://place.map.kakao.com/" + placeId;
         return new SpecificAddress(
                 location,
                 locationPoint,
@@ -82,7 +87,8 @@ public class SpecificAddress extends BaseEntity {
                 phone,
                 placeUrl,
                 locationPoint.getY(), // 위도 = Y
-                locationPoint.getX()  // 경도 = X
+                locationPoint.getX(),  // 경도 = X
+                placeId
         );
     }
 
@@ -94,7 +100,8 @@ public class SpecificAddress extends BaseEntity {
                 null,  // phone
                 null,  // placeUrl
                 locationPoint.getY(),
-                locationPoint.getX()
+                locationPoint.getX(),
+                null
         );
     }
 }

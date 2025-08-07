@@ -73,11 +73,11 @@ public class AdminServiceTest {
 
         // then
         assertNotNull(stats);
-        assertEquals(1L, stats.getTotalMembers());
-        assertEquals(1L, stats.getNewMembersToday());
-        assertEquals(1L, stats.getTotalPosts());
-        assertEquals(0L, stats.getTotalReviews());
-        assertEquals(0L, stats.getReviewsToday());
-        assertEquals(1L, stats.getTotalStudyGroups());
+        assertEquals(1L, stats.totalMembers());
+        assertEquals(1L, stats.newMembersToday());
+        assertEquals(1L, stats.totalPosts());
+        assertEquals(0L, stats.totalReviews());
+        assertEquals(0L, stats.reviewsToday());
+        assertEquals(1L, stats.totalStudyGroups());
     }
 }
