@@ -3,9 +3,8 @@ package com.samsamhajo.deepground.communityPlace.service;
 
 
 import com.samsamhajo.deepground.communityPlace.dto.SelectCommunityPlace;
-import com.samsamhajo.deepground.communityPlace.dto.request.CreateReviewDto;
-import com.samsamhajo.deepground.communityPlace.dto.request.ReviewDetailDto;
-import com.samsamhajo.deepground.communityPlace.dto.request.SearchReviewSummaryDto;
+import com.samsamhajo.deepground.communityPlace.dto.request.*;
+import com.samsamhajo.deepground.communityPlace.dto.response.ModifyReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewListResponseDto;
 import com.samsamhajo.deepground.communityPlace.dto.response.ReviewResponseDto;
 import com.samsamhajo.deepground.communityPlace.entity.CommunityPlaceMedia;
@@ -103,23 +102,6 @@ public class CommunityPlaceService {
 
     private List<String> updateCommunityPlaceMedia(ModifyReviewDto modifyReviewDto, CommunityPlaceReview communityPlaceReview) {
         return communityPlaceMediaService.createCommunityPlaceMedia(communityPlaceReview, modifyReviewDto.getImages());
-    }
-
-    public ReviewStatistics selectCommunityPlaceReviewsAndScope(Long specificAddressId) {
-
-        specificAddressRepository.findById(specificAddressId)
-                .orElseThrow(() -> new CommunityPlaceException(CommunityPlaceErrorCode.COMMUNITY_PLACE_NOT_FOUND));
-
-        Double avgScope = specificAddressRepository.avgScopeBySpecificAddressId(specificAddressId);
-        if (avgScope == null) {
-            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_COUNT_NOT_FOUND);
-        }
-        Long reviewCount = specificAddressRepository.countReviewBySpecificAddressId(specificAddressId);
-        if (reviewCount == null) {
-            throw new CommunityPlaceException(CommunityPlaceErrorCode.REVIEW_AVG_SCOPE_NOT_FOUND);
-        }
-
-        return ReviewStatistics.of(avgScope,reviewCount);
     }
   
     //TODO: 리뷰 작성 로직 구현 후 테스트 코드 작성 후 테스트 및 SWAGGER 통해 컨트롤러 테스트 진행 예정
