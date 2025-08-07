@@ -15,7 +15,7 @@ public interface SpecificAddressRepository extends JpaRepository<SpecificAddress
     Optional<SpecificAddress> findByNameAndLocation(String name, String location);
 
     @Query("SELECT sa.id AS id,sa.name AS name, sa.location AS location," +
-            "sa.phone AS phone,sa.placeUrl AS placeUrl, " +
+            "sa.phone AS phone,sa.placeId AS placeId, " +
             "sa.latitude AS latitude,sa.longitude AS longitude," +
             "AVG(r.scope) AS avgScope, COUNT(r) AS countReview " +
             "FROM SpecificAddress sa " +
@@ -25,7 +25,7 @@ public interface SpecificAddressRepository extends JpaRepository<SpecificAddress
     List<SelectCommunityPlace> findAllCommunityPlaceByReviewCountDesc();
 
     @Query( "SELECT sa.id AS id,sa.name AS name, sa.location AS location," +
-            "sa.phone AS phone,sa.placeUrl AS placeUrl, " +
+            "sa.phone AS phone,sa.placeId AS placeId, " +
             "sa.latitude AS latitude,sa.longitude AS longitude," +
             "AVG(r.scope) AS avgScope, COUNT(r) AS countReview " +
             "FROM SpecificAddress sa " +
