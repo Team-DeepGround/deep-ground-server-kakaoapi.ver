@@ -5,9 +5,11 @@ public interface SelectCommunityPlace {
     String getLocation();
     String getName();
     String getPhone();
-    String getPlaceUrl();
+    Long getPlaceId();
     Double getLatitude();
     Double getLongitude();
     Double getAvgScope();
     Long getCountReview();
+
+
 }

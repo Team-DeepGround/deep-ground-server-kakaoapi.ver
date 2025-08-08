@@ -9,7 +9,7 @@ public class PlaceRequestDto {
     private String name;
     private String address;
     private String phone;
-    private String placeUrl;
+    private String placeId;
     private Double latitude;
     private Double longitude;
 }
