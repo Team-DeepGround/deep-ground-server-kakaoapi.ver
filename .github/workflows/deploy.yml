@@ -85,7 +85,8 @@ jobs:
               
               # 3. deploy.sh 실행
               # 새로운 deploy.sh는 DOCKER_USERNAME/DOCKER_PASSWORD만 필요합니다.
-              DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} ./deploy.sh
-              
+              export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+              export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+            ./deploy.sh
               # 4. 보안을 위해 .env 파일 삭제
               rm .env
