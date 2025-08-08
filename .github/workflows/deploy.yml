@@ -68,13 +68,13 @@ jobs:
           labels: version=${{ github.ref_name }}
         # EC2에 배포
       - name: Deploy to EC2
-          uses: appleboy/ssh-action@v0.1.10
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ubuntu
-            key: ${{ secrets.EC2_KEY }}
-            envs: ENV_FILE=/home/ubuntu/deepground/.env
-            script: |
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          envs: ENV_FILE=/home/ubuntu/deepground/.env
+          script: |
               cd /home/ubuntu/deepground
               
               # .env 파일 생성
