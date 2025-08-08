@@ -73,20 +73,19 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          envs: ENV_FILE=/home/ubuntu/deepground/.env
           script: |
+              # EC2 서버로 이동
               cd /home/ubuntu/deepground
               
-              # .env 파일 생성
+              # .env 파일을 서버에 생성
               echo "${{ secrets.ENV }}" | base64 -d > .env
-              chmod 600 .env
               
-              # Docker 로그인 정보 환경 변수 설정
-              export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-              export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+              # 도커 로그인
+              echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
               
               # deploy.sh 실행
+              chmod +x deploy.sh
               ./deploy.sh
               
-              # 보안을 위해 .env 파일 삭제
+              # .env 파일 삭제
               rm .env
