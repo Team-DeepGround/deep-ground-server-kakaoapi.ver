@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  react-frontend:
+    image: wjd5107/react-frontend:latest
+    container_name: react-frontend
+    ports:
+      - "80:3000"  # 호스트의 80번 포트를 컨테이너의 3000번 포트로 연결
+    environment:
+      # 백엔드 API URL을 내부 네트워크 서비스 이름으로 설정
+      - NEXT_PUBLIC_API_BASE_URL=http://deepground-server:8080
+    depends_on:
+      - deepground-server
+
+  deepground-server:
+    image: wjd5107/deepground-server:latest
+    container_name: deepground-server
+    ports:
+      - "8080:8080" # 백엔드 포트 연결
+    environment:
+      # 필요한 환경 변수 추가 (예: MongoDB URI)
+      - MONGO_URI=mongodb://mongodb:27017/deepground_db
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
