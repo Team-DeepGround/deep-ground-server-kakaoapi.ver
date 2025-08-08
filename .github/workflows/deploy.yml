@@ -68,21 +68,24 @@ jobs:
           labels: version=${{ github.ref_name }}
         # EC2에 배포
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          envs: ENV_FILE=/home/ubuntu/deepground/.env
-          script: |
-            cd /home/ubuntu/deepground
-            
-            sudo iptables -A INPUT -p tcp --dport 6379 -j ACCEPT
-
-            echo "${{ secrets.ENV }}" | base64 -d > .env
-            chmod 600 .env # .env 
-
-            chmod +x deploy.sh
-             DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} ./deploy.sh
-            
-            rm .env
+          uses: appleboy/ssh-action@v0.1.10
+          with:
+            host: ${{ secrets.EC2_HOST }}
+            username: ubuntu
+            key: ${{ secrets.EC2_KEY }}
+            envs: ENV_FILE=/home/ubuntu/deepground/.env
+            script: |
+              # 1. 원격 서버(EC2)로 이동
+              cd /home/ubuntu/deepground
+              
+              # 2. .env 파일 생성
+              # 이제 Docker Compose가 .env를 사용하므로 이 단계가 필요합니다.
+              echo "${{ secrets.ENV }}" | base64 -d > .env
+              chmod 600 .env
+              
+              # 3. deploy.sh 실행
+              # 새로운 deploy.sh는 DOCKER_USERNAME/DOCKER_PASSWORD만 필요합니다.
+              DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} ./deploy.sh
+              
+              # 4. 보안을 위해 .env 파일 삭제
+              rm .env
