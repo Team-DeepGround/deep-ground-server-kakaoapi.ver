@@ -8,13 +8,13 @@ import java.util.List;
 @Getter
 public class SearchReviewSummaryDto {
 
-    private Long reviewId;
+    private Long communityPlaceReviewId;
     private double scope;
     private String content;
     private List<String> mediaUrl;
 
-    public SearchReviewSummaryDto(Long reviewId, double scope, String content, List<String> mediaUrl) {
-        this.reviewId = reviewId;
+    public SearchReviewSummaryDto(Long communityPlaceReviewId, double scope, String content, List<String> mediaUrl) {
+        this.communityPlaceReviewId = communityPlaceReviewId;
         this.scope = scope;
         this.content = content;
         this.mediaUrl = mediaUrl;

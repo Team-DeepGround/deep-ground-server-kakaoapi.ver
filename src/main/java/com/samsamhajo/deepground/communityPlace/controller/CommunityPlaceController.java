@@ -81,7 +81,7 @@ public class CommunityPlaceController {
                 .ok(SuccessResponse.of(CommunityPlaceSuccessCode.COMMUNITYPLACE_SUCCESS_SELECT_BY_REVIEW_SCOPE,communityPlaceReview));
     }
 
-    @GetMapping("/communityPlaceReviewId")
+    @GetMapping("/{communityPlaceReviewId}")
     public ResponseEntity<SuccessResponse> getReviewDetail(
             @PathVariable Long communityPlaceReviewId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
